@@ -2,6 +2,8 @@ import type { PublicData } from '@/db/actions/public'
 import type { invitations } from '@/db/schema'
 import Countdown from './Countdown'
 import RSVPSection from './RSVPSection'
+import InvitationQR from './InvitationQR'
+import Link from 'next/link'
 
 type InvitationViewProps = PublicData & {
   invitation?: typeof invitations.$inferSelect | null
@@ -396,6 +398,40 @@ function GiftCard({ gift }: { gift: InvitationViewProps['gifts'][number] }) {
   )
 }
 
+function SpotifySection({ couple }: { couple: InvitationViewProps['couple'] }) {
+  const url = couple?.songUrl
+  if (!url) return null
+
+  // Extract Spotify track/album/playlist ID from URL
+  // Handles: open.spotify.com/track/ID, open.spotify.com/intl-*/track/ID
+  const m = url.match(/spotify\.com(?:\/intl-[^/]+)?\/(\w+)\/([A-Za-z0-9]+)/)
+  if (!m) return null
+  const [, type, id] = m
+  const embedUrl = `https://open.spotify.com/embed/${type}/${id}?utm_source=generator&theme=0`
+
+  return (
+    <section className="space-y-3">
+      <SectionHeader>Nuestra Canción</SectionHeader>
+      {couple?.songTitle && (
+        <p className="text-center text-xs italic" style={{ color: 'var(--w-text-muted)' }}>
+          {couple.songTitle}
+        </p>
+      )}
+      <div className="rounded-2xl overflow-hidden border" style={{ borderColor: 'var(--w-cream-border)' }}>
+        <iframe
+          src={embedUrl}
+          width="100%"
+          height="152"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
+          style={{ border: 'none', display: 'block' }}
+          title={couple?.songTitle ?? 'Nuestra canción'}
+        />
+      </div>
+    </section>
+  )
+}
+
 function GiftsSection({ gifts }: { gifts: InvitationViewProps['gifts'] }) {
   if (gifts.length === 0) return null
   return (
@@ -467,7 +503,17 @@ export default function InvitationView({
 
       <NotesSection event={event} />
 
+      <SpotifySection couple={couple} />
+
       <GiftsSection gifts={gifts} />
+
+      {/* QR — shown only when there's a personalized invitation */}
+      {invitation && invitation.status !== 'present' && (
+        <section className="space-y-3">
+          <SectionHeader>Tu Código QR</SectionHeader>
+          <InvitationQR token={invitation.token} />
+        </section>
+      )}
 
       {/* RSVP */}
       {invitation && !['present'].includes(invitation.status) && (
@@ -478,6 +524,32 @@ export default function InvitationView({
           currentStatus={invitation.status}
           confirmedCount={invitation.confirmedCount}
         />
+      )}
+
+      {/* Post-event: shown when guest is already checked in */}
+      {invitation && invitation.status === 'present' && (
+        <section className="space-y-3">
+          <SectionHeader>Después del Evento</SectionHeader>
+          <div
+            className="p-5 rounded-2xl border text-center space-y-3"
+            style={{ backgroundColor: 'white', borderColor: 'var(--w-cream-border)' }}
+          >
+            <p className="text-2xl">📸</p>
+            <p className="text-sm font-semibold" style={{ color: 'var(--w-text)' }}>
+              ¡Gracias por acompañarnos!
+            </p>
+            <p className="text-xs leading-relaxed" style={{ color: 'var(--w-text-muted)' }}>
+              Comparte tus fotos y videos del evento con los novios.
+            </p>
+            <Link
+              href={`/r/${invitation.token}`}
+              className="inline-block px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              style={{ backgroundColor: 'var(--w-blue)' }}
+            >
+              Subir fotos y videos →
+            </Link>
+          </div>
+        </section>
       )}
 
       {/* Footer */}

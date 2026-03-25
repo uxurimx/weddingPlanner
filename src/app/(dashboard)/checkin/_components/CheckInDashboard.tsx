@@ -209,8 +209,6 @@ export default function CheckInDashboard({
 }) {
   const router = useRouter()
   const [, startTransition] = useTransition()
-  const [stats, setStats] = useState<CheckInStats>(initialStats)
-  const [guests, setGuests] = useState<CheckInRow[]>(initialGuests)
   const [search, setSearch] = useState('')
   const [toast, setToast] = useState<ToastState>(null)
   const [tab, setTab] = useState<'scanner' | 'list'>('scanner')
@@ -252,12 +250,12 @@ export default function CheckInDashboard({
 
   // ─── Filtered list ────────────────────────────────────────────────────────
   const filtered = search.length >= 1
-    ? guests.filter(g =>
+    ? initialGuests.filter(g =>
         g.familyName.toLowerCase().includes(search.toLowerCase()) ||
         g.contactName.toLowerCase().includes(search.toLowerCase()) ||
         String(g.invitationNumber ?? '').includes(search)
       )
-    : guests.filter(g => g.status === 'present')
+    : initialGuests.filter(g => g.status === 'present')
            .sort((a, b) => {
              const ta = a.checkedInAt ? new Date(a.checkedInAt).getTime() : 0
              const tb = b.checkedInAt ? new Date(b.checkedInAt).getTime() : 0
@@ -275,7 +273,7 @@ export default function CheckInDashboard({
 
       <div className="space-y-5">
         {/* Stats */}
-        <StatsBar stats={stats} />
+        <StatsBar stats={initialStats} />
 
         {/* Tabs */}
         <div

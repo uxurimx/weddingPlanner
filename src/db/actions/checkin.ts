@@ -5,7 +5,7 @@ import { events, invitations, tablesSeating } from '@/db/schema'
 import { eq, asc, desc, and } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { pusherServer, CHECKIN_CHANNEL, CHECKIN_EVENT } from '@/lib/pusher'
-import { logNotification } from './notifications'
+import { logNotification } from '@/lib/logNotification'
 
 export type CheckInResult = {
   familyName: string

@@ -4,7 +4,7 @@ import { db } from '@/db'
 import { events, couple, venues, itineraryItems, giftRegistries, invitations } from '@/db/schema'
 import { eq, asc, and } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
-import { logNotification } from './notifications'
+import { logNotification } from '@/lib/logNotification'
 
 export type ActionState = { success?: boolean; error?: string; rsvpAction?: string } | null
 

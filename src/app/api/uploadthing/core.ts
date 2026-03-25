@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { db } from '@/db'
 import { events, invitations, mediaUploads } from '@/db/schema'
 import { eq } from 'drizzle-orm'
-import { logNotification } from '@/db/actions/notifications'
+import { logNotification } from '@/lib/logNotification'
 
 const f = createUploadthing()
 

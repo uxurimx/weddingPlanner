@@ -262,3 +262,32 @@ export async function seedWeddingData(): Promise<ActionState> {
     return { error: 'Error al cargar datos iniciales.' }
   }
 }
+
+// ─── Event flags ──────────────────────────────────────────────────────────────
+
+export async function getEventFlags(): Promise<{
+  isCheckinActive: boolean
+  isPostEventActive: boolean
+} | null> {
+  const [event] = await db
+    .select({ isCheckinActive: events.isCheckinActive, isPostEventActive: events.isPostEventActive })
+    .from(events)
+    .limit(1)
+  return event ?? null
+}
+
+export async function toggleEventFlag(
+  flag: 'isCheckinActive' | 'isPostEventActive',
+  value: boolean,
+): Promise<ActionState> {
+  try {
+    const eventId = await getFirstEventId()
+    if (!eventId) return { error: 'No hay evento configurado.' }
+    await db.update(events).set({ [flag]: value, updatedAt: new Date() }).where(eq(events.id, eventId))
+    revalidatePath('/settings')
+    revalidatePath('/checkin')
+    return { success: true, message: 'Guardado.' }
+  } catch {
+    return { error: 'Error al actualizar.' }
+  }
+}
