@@ -31,6 +31,7 @@ export const ROUTE_ACCESS: Record<string, UserRole[]> = {
   '/checkin':      ['super_admin', 'admin', 'planner', 'receptionist'],
   '/users':        ['super_admin'],
   '/settings':     ['super_admin', 'admin'],
+  '/debug':        ['super_admin', 'admin'],
 }
 
 export function canAccess(role: UserRole, path: string): boolean {

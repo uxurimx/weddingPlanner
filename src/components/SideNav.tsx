@@ -15,6 +15,7 @@ import {
   ScanLine,
   ShieldCheck,
   Settings,
+  Bug,
   ChevronRight,
   Menu,
   X,
@@ -74,6 +75,7 @@ const navSections: NavSection[] = [
   {
     items: [
       { name: 'Configuración', href: '/settings', icon: Settings },
+      { name: 'Debug Uploads', href: '/debug',    icon: Bug      },
     ],
   },
 ]

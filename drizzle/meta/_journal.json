@@ -8,6 +8,13 @@
       "when": 1774422178188,
       "tag": "0000_swift_ben_parker",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1774435356375,
+      "tag": "0001_dry_meteorite",
+      "breakpoints": true
     }
   ]
 }

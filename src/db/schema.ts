@@ -237,6 +237,20 @@ export const videoMessages = pgTable('video_messages', {
 
 // ─── Notifications Log ────────────────────────────────────────────────────────
 
+// ─── Upload Debug Log ─────────────────────────────────────────────────────────
+
+export const uploadLogs = pgTable('upload_logs', {
+  id:         uuid('id').primaryKey().defaultRandom(),
+  createdAt:  timestamp('created_at').defaultNow(),
+  slug:       text('slug'),              // 'photographerUpload' | 'guestUpload' | 'videoMessage'
+  phase:      text('phase').notNull(),   // 'middleware_start' | 'middleware_ok' | 'middleware_error' | 'complete_start' | 'complete_ok' | 'complete_error'
+  status:     varchar('status', { length: 10 }).notNull().default('ok'), // 'ok' | 'error'
+  message:    text('message'),
+  details:    text('details'),           // JSON
+  errorMsg:   text('error_msg'),
+  errorStack: text('error_stack'),
+})
+
 export const notificationsLog = pgTable('notifications_log', {
   id:           uuid('id').primaryKey().defaultRandom(),
   eventId:      uuid('event_id').notNull().references(() => events.id, { onDelete: 'cascade' }),
