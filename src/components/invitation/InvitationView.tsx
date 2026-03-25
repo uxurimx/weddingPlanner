@@ -4,7 +4,7 @@ import Countdown from './Countdown'
 import RSVPSection from './RSVPSection'
 import InvitationQR from './InvitationQR'
 import AnimatedSection from './AnimatedSection'
-import Link from 'next/link'
+import PresentView from './PresentView'
 
 type InvitationViewProps = PublicData & {
   invitation?: typeof invitations.$inferSelect | null
@@ -463,6 +463,18 @@ export default function InvitationView({
   gifts,
   invitation,
 }: InvitationViewProps) {
+  // When guest is checked in, show the focused present-state view
+  if (invitation && invitation.status === 'present') {
+    return (
+      <PresentView
+        invitation={invitation}
+        event={event}
+        itinerary={itinerary}
+        couple={couple}
+      />
+    )
+  }
+
   const weddingDate = event.date.toISOString()
 
   return (
@@ -553,33 +565,6 @@ export default function InvitationView({
         </AnimatedSection>
       )}
 
-      {/* Post-event: shown when guest is already checked in */}
-      {invitation && invitation.status === 'present' && (
-        <AnimatedSection>
-          <section className="space-y-3">
-            <SectionHeader>Después del Evento</SectionHeader>
-            <div
-              className="p-5 rounded-2xl border text-center space-y-3"
-              style={{ backgroundColor: 'white', borderColor: 'var(--w-cream-border)' }}
-            >
-              <p className="text-2xl">📸</p>
-              <p className="text-sm font-semibold" style={{ color: 'var(--w-text)' }}>
-                ¡Gracias por acompañarnos!
-              </p>
-              <p className="text-xs leading-relaxed" style={{ color: 'var(--w-text-muted)' }}>
-                Comparte tus fotos y videos del evento con los novios.
-              </p>
-              <Link
-                href={`/r/${invitation.token}`}
-                className="inline-block px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                style={{ backgroundColor: 'var(--w-blue)' }}
-              >
-                Subir fotos y videos →
-              </Link>
-            </div>
-          </section>
-        </AnimatedSection>
-      )}
 
       {/* Footer */}
       <AnimatedSection>

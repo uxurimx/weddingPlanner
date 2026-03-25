@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
@@ -15,6 +16,8 @@ import {
   ShieldCheck,
   Settings,
   ChevronRight,
+  Menu,
+  X,
   type LucideIcon,
 } from 'lucide-react'
 import { UserButton, useUser } from '@clerk/nextjs'
@@ -78,8 +81,21 @@ const navSections: NavSection[] = [
 export default function SideNav({ role }: { role: UserRole }) {
   const pathname = usePathname()
   const { user } = useUser()
+  const [open, setOpen] = useState(false)
 
-  // Filter nav items based on role
+  // Close sidebar on route change
+  useEffect(() => { setOpen(false) }, [pathname])
+
+  // Prevent body scroll when sidebar is open on mobile
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [open])
+
   const visibleSections = navSections
     .map(section => ({
       ...section,
@@ -90,11 +106,21 @@ export default function SideNav({ role }: { role: UserRole }) {
     }))
     .filter(section => section.items.length > 0)
 
-  return (
+  const sidebarContent = (
     <div
-      className="h-screen w-64 flex flex-col p-4 fixed left-0 top-0 z-50 border-r overflow-y-auto"
+      className="h-screen w-64 flex flex-col p-4 border-r overflow-y-auto"
       style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}
     >
+      {/* Mobile close button */}
+      <button
+        className="absolute top-3 right-3 p-1.5 rounded-lg md:hidden"
+        style={{ color: 'var(--fg-muted)' }}
+        onClick={() => setOpen(false)}
+        aria-label="Cerrar menú"
+      >
+        <X className="w-5 h-5" />
+      </button>
+
       {/* Brand */}
       <div className="flex items-center gap-3 px-2 mb-8 mt-2">
         <div className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20">
@@ -148,13 +174,11 @@ export default function SideNav({ role }: { role: UserRole }) {
 
       {/* Footer */}
       <div className="mt-auto pt-4 space-y-3 border-t" style={{ borderColor: 'var(--border)' }}>
-        {/* Role badge */}
         <div className="px-2">
           <span className={`text-[10px] px-2 py-1 rounded-full font-bold border ${ROLE_COLORS[role]}`}>
             {ROLE_LABELS[role]}
           </span>
         </div>
-
         <div className="flex items-center justify-between px-2">
           <span className="text-xs" style={{ color: 'var(--fg-muted)' }}>Tema</span>
           <div className="flex items-center gap-1">
@@ -162,7 +186,6 @@ export default function SideNav({ role }: { role: UserRole }) {
             <ThemeToggle />
           </div>
         </div>
-
         <div
           className="flex items-center gap-3 px-2 py-2.5 rounded-xl border"
           style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)' }}
@@ -182,5 +205,53 @@ export default function SideNav({ role }: { role: UserRole }) {
         </div>
       </div>
     </div>
+  )
+
+  return (
+    <>
+      {/* ── Mobile top bar ─────────────────────────────────────────────────────── */}
+      <header
+        className="fixed top-0 left-0 right-0 h-14 z-40 flex items-center px-4 gap-3 border-b md:hidden"
+        style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}
+      >
+        <button
+          onClick={() => setOpen(true)}
+          className="p-2 rounded-xl transition-colors"
+          style={{ color: 'var(--fg)' }}
+          aria-label="Abrir menú"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20">
+            <Heart className="text-rose-500 w-4 h-4" />
+          </div>
+          <span className="font-outfit font-bold text-sm" style={{ color: 'var(--fg)' }}>
+            {siteConfig.name}
+          </span>
+        </div>
+      </header>
+
+      {/* ── Mobile backdrop ────────────────────────────────────────────────────── */}
+      {open && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 md:hidden"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
+      {/* ── Sidebar ────────────────────────────────────────────────────────────── */}
+      {/* Desktop: always visible, fixed */}
+      {/* Mobile: slide in/out overlay */}
+      <div
+        className={[
+          'fixed left-0 top-0 z-[60] transition-transform duration-300 ease-in-out relative',
+          'md:translate-x-0',
+          open ? 'translate-x-0' : '-translate-x-full',
+        ].join(' ')}
+      >
+        {sidebarContent}
+      </div>
+    </>
   )
 }
