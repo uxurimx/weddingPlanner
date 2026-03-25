@@ -5,8 +5,10 @@ import { UserButton } from '@clerk/nextjs'
 import ThemeToggle from '@/components/ThemeToggle'
 import { getEventFlags } from '@/db/actions/information'
 import EventFlagsPanel from './_components/EventFlagsPanel'
+import { requireRole } from '@/lib/requireRole'
 
 export default async function SettingsPage() {
+  await requireRole('super_admin', 'admin')
   const [user, flags] = await Promise.all([currentUser(), getEventFlags()])
 
   return (
