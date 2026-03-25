@@ -3,34 +3,50 @@
 /* Enable class-based dark mode */
 @variant dark (&:where(.dark, .dark *));
 
-/* ─── Light theme (default) ─── */
+/* ─── Admin: Light theme (default) ─── */
 :root {
-  --bg:         #ffffff;
-  --surface:    #f5f5fa;
-  --surface-2:  #ebebf5;
-  --border:     #e2e2ee;
-  --fg:         #0f0f1a;
-  --fg-muted:   #6b6b80;
-  --accent:     #6366f1;
+  --bg:           #ffffff;
+  --surface:      #f5f5fa;
+  --surface-2:    #ebebf5;
+  --border:       #e2e2ee;
+  --fg:           #0f0f1a;
+  --fg-muted:     #6b6b80;
+  --accent:       #6366f1;
   --accent-hover: #4f46e5;
 }
 
-/* ─── Dark theme ─── */
+/* ─── Admin: Dark theme ─── */
 .dark {
-  --bg:         #09090f;
-  --surface:    #111118;
-  --surface-2:  #1a1a24;
-  --border:     #1e1e2e;
-  --fg:         #f0f0f8;
-  --fg-muted:   #8b8ba8;
-  --accent:     #818cf8;
+  --bg:           #09090f;
+  --surface:      #111118;
+  --surface-2:    #1a1a24;
+  --border:       #1e1e2e;
+  --fg:           #f0f0f8;
+  --fg-muted:     #8b8ba8;
+  --accent:       #818cf8;
   --accent-hover: #6366f1;
+}
+
+/* ─── Wedding palette (public invitation pages) ─── */
+:root {
+  --w-cream:        #FAF6EE;
+  --w-cream-dark:   #F0E9D8;
+  --w-cream-border: #E8DCC8;
+  --w-blue:         #6B9BC4;
+  --w-blue-dark:    #4A7BA7;
+  --w-blue-light:   #A8C8E0;
+  --w-blue-border:  #C5DFF0;
+  --w-text:         #2A3A4A;
+  --w-text-muted:   #7A8A9A;
+  --w-text-light:   #A0B0BF;
+  --w-gold:         #C4A55A;
+  --w-gold-light:   #E8D5A0;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
+  --font-sans:   var(--font-inter);
   --font-outfit: var(--font-outfit);
 }
 
@@ -41,7 +57,7 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* ─── Animations ─── */
+/* ─── Admin animations ─── */
 @keyframes blob {
   0%   { transform: translate(0px, 0px) scale(1); }
   33%  { transform: translate(30px, -40px) scale(1.08); }
@@ -54,7 +70,50 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.animate-blob       { animation: blob 9s infinite ease-in-out; }
-.animation-delay-2000 { animation-delay: 2s; }
-.animation-delay-4000 { animation-delay: 4s; }
-.animate-fade-in    { animation: fade-in 0.7s ease-out forwards; }
+/* ─── Wedding animations (public invitation) ─── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-down {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+@keyframes countdown-flip {
+  0%   { transform: rotateX(0deg); opacity: 1; }
+  50%  { transform: rotateX(-90deg); opacity: 0; }
+  51%  { transform: rotateX(90deg); opacity: 0; }
+  100% { transform: rotateX(0deg); opacity: 1; }
+}
+
+@keyframes envelope-open {
+  0%   { transform: scaleY(1); }
+  100% { transform: scaleY(0) translateY(-20px); opacity: 0; }
+}
+
+/* ─── Utility classes ─── */
+.animate-blob            { animation: blob 9s infinite ease-in-out; }
+.animation-delay-2000    { animation-delay: 2s; }
+.animation-delay-4000    { animation-delay: 4s; }
+.animate-fade-in         { animation: fade-in 0.7s ease-out forwards; }
+.animate-fade-up         { animation: fade-up 0.8s ease-out forwards; }
+.animate-fade-down       { animation: fade-down 0.6s ease-out forwards; }
+.animate-float           { animation: float 4s ease-in-out infinite; }
+.animate-delay-100       { animation-delay: 0.1s; }
+.animate-delay-200       { animation-delay: 0.2s; }
+.animate-delay-300       { animation-delay: 0.3s; }
+.animate-delay-400       { animation-delay: 0.4s; }
+.animate-delay-500       { animation-delay: 0.5s; }
+.animate-delay-600       { animation-delay: 0.6s; }

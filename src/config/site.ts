@@ -1,7 +1,14 @@
-// Central configuration — update this file to rebrand the app
+// Central configuration — wedding details
 export const siteConfig = {
-  name: "Admin Panel",
-  tagline: "Your platform, your rules.",
-  description: "A clean, modular admin panel template built with Next.js, Clerk, and Drizzle ORM.",
+  name: "Jahir & Gilliane",
+  tagline: "Sábado 6 de junio, 2026",
+  description: "Sistema de gestión para la boda de Jahir & Gilliane",
   version: "1.0.0",
+
+  // Wedding specifics
+  weddingDate: "2026-06-06T14:30:00",
+  groomName: "Jahir",
+  groomNickname: "Jair",
+  brideName: "Gilliane",
+  brideNickname: "Gilli",
 };
