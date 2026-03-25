@@ -27,3 +27,8 @@ habra una persona en  la entrada escaneando los codigos qr de los invitados y al
 Cuando se actualice el estado del invitado a presente (cuando ya este en el evento, ya que se haya escaneado el qr) su pase cambiara, ya no mostrara los detalles del evento, mostrara una opcion para enviar un mensaje personal a los novios en video, una sola vez. y otra opcion para subir todas las fotos que quieran del evento. la idea es que el fotografo del evento  tomara las fotos oficiales, pero solo seran algunas, cuando todos los invitados suban sus propias fotos, la pareja tendra cientos o miles de fotos, que ningun fotografo podra hacer solo, mas memorias. tambien agrea una opcion para la persona de la entrada (recepcionista) para que pueda activar o validar a unapersona si no  tiene el pase por el nombre o familia. (en caso que hayan olvidadoel qr algo)
 
 el objetivo es llevar control de las mesas, invitados, confirmaciones y asistenci y cualquier detalle de un evento de este tipo. analiza el plan con mucho detalle y dame sugerencias, mejoras, posibles problemas y solciones, ideas y afinaciones para mejorar el flujo y procesos. NO HAGAS CAMBIOS AUN, PRIMERO UN PLAN BRUTAL, analizando y tomando en cuenta cada detalle, tu eres el  experto, revisa si hay algo que no explique, un wedding planning digital, que deje huella para este momento tan especial.
+
+
+
+12:05 - Fase 1
+12:34 - Fase 2

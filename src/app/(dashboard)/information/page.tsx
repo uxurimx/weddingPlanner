@@ -1,49 +1,66 @@
-import { BookOpen, Users, MapPin, Music, Heart, Quote } from "lucide-react";
+export const dynamic = 'force-dynamic'
 
-const features = [
-  { icon: Heart,   title: "Novios y padres",     desc: "Nombres completos de Jahir, Gilliane y sus 4 padres." },
-  { icon: Quote,   title: "Cita bíblica",         desc: "Versículo personalizado — Oseas 2:19." },
-  { icon: MapPin,  title: "Venues",               desc: "Discurso Bíblico y Recepción con dirección, mapa y horarios." },
-  { icon: Music,   title: "Canción y fotos",      desc: "Canción de YouTube/Spotify y galería de fotos de la pareja." },
-  { icon: Users,   title: "Texto de invitación",  desc: "Mensaje personalizado que aparece en todas las invitaciones." },
-  { icon: BookOpen, title: "Dress code",          desc: "Indicaciones de vestimenta con descripción y notas." },
-];
+import { BookOpen, Sparkles } from 'lucide-react'
+import { getEventData, seedWeddingData } from '@/db/actions/information'
+import InfoTabs from './_components/InfoTabs'
 
-export default function InformationPage() {
+// Wrapper void para usar seedWeddingData como form action
+async function handleSeed(_fd: FormData) {
+  'use server'
+  await seedWeddingData()
+}
+
+export default async function InformationPage() {
+  const data = await getEventData()
+
   return (
     <div className="p-8 max-w-4xl">
-      <div className="mb-8">
-        <div
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold border mb-4"
-          style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)", color: "var(--fg-muted)" }}
-        >
-          Fase 2 · En desarrollo
+      {/* Header */}
+      <div className="flex items-start justify-between mb-8">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: "var(--fg-muted)" }}>
+            Evento
+          </p>
+          <h1 className="font-outfit font-bold text-3xl" style={{ color: "var(--fg)" }}>
+            Información
+          </h1>
+          <p className="mt-1 text-sm" style={{ color: "var(--fg-muted)" }}>
+            Todos los datos del evento y la pareja. Los cambios se reflejan en la invitación.
+          </p>
         </div>
-        <h1 className="font-outfit font-bold text-3xl mb-2" style={{ color: "var(--fg)" }}>
-          Información del Evento
-        </h1>
-        <p className="text-sm" style={{ color: "var(--fg-muted)" }}>
-          Gestiona todos los datos del evento. Todo lo que ingreses aquí se refleja automáticamente en la invitación pública y en las invitaciones personalizadas.
-        </p>
+        <div className="flex items-center gap-2 p-2 rounded-xl border" style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}>
+          <BookOpen className="w-4 h-4 text-indigo-500" />
+          <span className="text-xs font-semibold" style={{ color: "var(--fg-muted)" }}>
+            {data ? 'Datos cargados' : 'Sin datos'}
+          </span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {features.map(({ icon: Icon, title, desc }) => (
-          <div
-            key={title}
-            className="flex items-start gap-4 p-4 rounded-xl border"
-            style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}
-          >
-            <div className="p-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex-shrink-0">
-              <Icon className="w-4 h-4 text-indigo-500" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold mb-0.5" style={{ color: "var(--fg)" }}>{title}</p>
-              <p className="text-xs leading-relaxed" style={{ color: "var(--fg-muted)" }}>{desc}</p>
-            </div>
+      {!data ? (
+        /* No event in DB — show seed option */
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 mb-6">
+            <Sparkles className="w-8 h-8 text-indigo-500" />
           </div>
-        ))}
-      </div>
+          <h2 className="font-outfit font-bold text-xl mb-2" style={{ color: "var(--fg)" }}>
+            Sin datos del evento
+          </h2>
+          <p className="text-sm max-w-md mb-8" style={{ color: "var(--fg-muted)" }}>
+            Carga los datos pre-configurados de la invitación de Jahir & Gilliane, o agrega los datos manualmente desde los formularios.
+          </p>
+          <form action={handleSeed}>
+            <button
+              type="submit"
+              className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-500/20"
+            >
+              <Sparkles className="w-4 h-4" />
+              Cargar datos de la invitación
+            </button>
+          </form>
+        </div>
+      ) : (
+        <InfoTabs data={data} />
+      )}
     </div>
-  );
+  )
 }
