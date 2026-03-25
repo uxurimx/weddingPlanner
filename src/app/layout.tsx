@@ -18,6 +18,15 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: siteConfig.name,
   description: siteConfig.description,
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: siteConfig.name,
+  },
+  other: {
+    'mobile-web-app-capable': 'yes',
+  },
 };
 
 export default function RootLayout({
@@ -27,7 +36,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
+      <html lang="es" suppressHydrationWarning>
         <body className={`${inter.variable} ${outfit.variable} antialiased font-sans`}>
           <ThemeProvider>{children}</ThemeProvider>
         </body>

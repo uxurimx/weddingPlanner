@@ -3,6 +3,7 @@ import type { invitations } from '@/db/schema'
 import Countdown from './Countdown'
 import RSVPSection from './RSVPSection'
 import InvitationQR from './InvitationQR'
+import AnimatedSection from './AnimatedSection'
 import Link from 'next/link'
 
 type InvitationViewProps = PublicData & {
@@ -471,101 +472,131 @@ export default function InvitationView({
     >
       {/* Personalized header */}
       {invitation && (
-        <div
-          className="text-center py-6 rounded-3xl border"
-          style={{ backgroundColor: 'white', borderColor: 'var(--w-cream-border)' }}
-        >
-          <p className="text-[10px] uppercase tracking-[0.3em] mb-2" style={{ color: 'var(--w-text-light)' }}>
-            Esta invitación es para
-          </p>
-          <p className="font-outfit text-2xl font-bold" style={{ color: 'var(--w-text)' }}>
-            {invitation.familyName}
-          </p>
-          <p className="text-xs mt-1" style={{ color: 'var(--w-text-muted)' }}>
-            {invitation.contactName} · {invitation.totalPasses} pase{invitation.totalPasses > 1 ? 's' : ''}
-          </p>
-        </div>
+        <AnimatedSection>
+          <div
+            className="text-center py-6 rounded-3xl border"
+            style={{ backgroundColor: 'white', borderColor: 'var(--w-cream-border)' }}
+          >
+            <p className="text-[10px] uppercase tracking-[0.3em] mb-2" style={{ color: 'var(--w-text-light)' }}>
+              Esta invitación es para
+            </p>
+            <p className="font-outfit text-2xl font-bold" style={{ color: 'var(--w-text)' }}>
+              {invitation.familyName}
+            </p>
+            <p className="text-xs mt-1" style={{ color: 'var(--w-text-muted)' }}>
+              {invitation.contactName} · {invitation.totalPasses} pase{invitation.totalPasses > 1 ? 's' : ''}
+            </p>
+          </div>
+        </AnimatedSection>
       )}
 
-      <HeroSection couple={couple} event={event} />
+      <AnimatedSection delay={0.05}>
+        <HeroSection couple={couple} event={event} />
+      </AnimatedSection>
 
-      <Countdown weddingDate={weddingDate} />
+      <AnimatedSection delay={0.1}>
+        <Countdown weddingDate={weddingDate} />
+      </AnimatedSection>
 
-      <QuoteSection couple={couple} />
+      <AnimatedSection>
+        <QuoteSection couple={couple} />
+      </AnimatedSection>
 
-      <ParentsSection couple={couple} />
+      <AnimatedSection>
+        <ParentsSection couple={couple} />
+      </AnimatedSection>
 
-      <InvitationTextSection couple={couple} />
+      <AnimatedSection>
+        <InvitationTextSection couple={couple} />
+      </AnimatedSection>
 
-      <VenuesSection venues={venues} />
+      <AnimatedSection>
+        <VenuesSection venues={venues} />
+      </AnimatedSection>
 
-      <ItinerarySection itinerary={itinerary} />
+      <AnimatedSection>
+        <ItinerarySection itinerary={itinerary} />
+      </AnimatedSection>
 
-      <NotesSection event={event} />
+      <AnimatedSection>
+        <NotesSection event={event} />
+      </AnimatedSection>
 
-      <SpotifySection couple={couple} />
+      <AnimatedSection>
+        <SpotifySection couple={couple} />
+      </AnimatedSection>
 
-      <GiftsSection gifts={gifts} />
+      <AnimatedSection>
+        <GiftsSection gifts={gifts} />
+      </AnimatedSection>
 
       {/* QR — shown only when there's a personalized invitation */}
       {invitation && invitation.status !== 'present' && (
-        <section className="space-y-3">
-          <SectionHeader>Tu Código QR</SectionHeader>
-          <InvitationQR token={invitation.token} />
-        </section>
+        <AnimatedSection>
+          <section className="space-y-3">
+            <SectionHeader>Tu Código QR</SectionHeader>
+            <InvitationQR token={invitation.token} />
+          </section>
+        </AnimatedSection>
       )}
 
       {/* RSVP */}
       {invitation && !['present'].includes(invitation.status) && (
-        <RSVPSection
-          token={invitation.token}
-          familyName={invitation.familyName}
-          totalPasses={invitation.totalPasses}
-          currentStatus={invitation.status}
-          confirmedCount={invitation.confirmedCount}
-        />
+        <AnimatedSection>
+          <RSVPSection
+            token={invitation.token}
+            familyName={invitation.familyName}
+            totalPasses={invitation.totalPasses}
+            currentStatus={invitation.status}
+            confirmedCount={invitation.confirmedCount}
+          />
+        </AnimatedSection>
       )}
 
       {/* Post-event: shown when guest is already checked in */}
       {invitation && invitation.status === 'present' && (
-        <section className="space-y-3">
-          <SectionHeader>Después del Evento</SectionHeader>
-          <div
-            className="p-5 rounded-2xl border text-center space-y-3"
-            style={{ backgroundColor: 'white', borderColor: 'var(--w-cream-border)' }}
-          >
-            <p className="text-2xl">📸</p>
-            <p className="text-sm font-semibold" style={{ color: 'var(--w-text)' }}>
-              ¡Gracias por acompañarnos!
-            </p>
-            <p className="text-xs leading-relaxed" style={{ color: 'var(--w-text-muted)' }}>
-              Comparte tus fotos y videos del evento con los novios.
-            </p>
-            <Link
-              href={`/r/${invitation.token}`}
-              className="inline-block px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
-              style={{ backgroundColor: 'var(--w-blue)' }}
+        <AnimatedSection>
+          <section className="space-y-3">
+            <SectionHeader>Después del Evento</SectionHeader>
+            <div
+              className="p-5 rounded-2xl border text-center space-y-3"
+              style={{ backgroundColor: 'white', borderColor: 'var(--w-cream-border)' }}
             >
-              Subir fotos y videos →
-            </Link>
-          </div>
-        </section>
+              <p className="text-2xl">📸</p>
+              <p className="text-sm font-semibold" style={{ color: 'var(--w-text)' }}>
+                ¡Gracias por acompañarnos!
+              </p>
+              <p className="text-xs leading-relaxed" style={{ color: 'var(--w-text-muted)' }}>
+                Comparte tus fotos y videos del evento con los novios.
+              </p>
+              <Link
+                href={`/r/${invitation.token}`}
+                className="inline-block px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                style={{ backgroundColor: 'var(--w-blue)' }}
+              >
+                Subir fotos y videos →
+              </Link>
+            </div>
+          </section>
+        </AnimatedSection>
       )}
 
       {/* Footer */}
-      <footer className="text-center pb-4 space-y-4">
-        <Divider />
-        <p
-          className="font-outfit text-xl font-semibold tracking-wide"
-          style={{ color: 'var(--w-gold)' }}
-        >
-          J &amp; G
-        </p>
-        <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--w-text-light)' }}>
-          Te esperamos con mucho amor · 06·06·2026
-        </p>
-        <Divider />
-      </footer>
+      <AnimatedSection>
+        <footer className="text-center pb-4 space-y-4">
+          <Divider />
+          <p
+            className="font-outfit text-xl font-semibold tracking-wide"
+            style={{ color: 'var(--w-gold)' }}
+          >
+            J &amp; G
+          </p>
+          <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--w-text-light)' }}>
+            Te esperamos con mucho amor · 06·06·2026
+          </p>
+          <Divider />
+        </footer>
+      </AnimatedSection>
     </div>
   )
 }
