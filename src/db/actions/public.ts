@@ -4,6 +4,7 @@ import { db } from '@/db'
 import { events, couple, venues, itineraryItems, giftRegistries, invitations } from '@/db/schema'
 import { eq, asc, and } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
+import { logNotification } from './notifications'
 
 export type ActionState = { success?: boolean; error?: string; rsvpAction?: string } | null
 
@@ -119,6 +120,19 @@ export async function submitRSVP(prev: ActionState, formData: FormData): Promise
         cancelledAt: new Date(),
         updatedAt: new Date(),
       }).where(eq(invitations.id, inv.id))
+    }
+
+    // Log notification
+    const [event] = await db.select({ id: events.id }).from(events).limit(1)
+    if (event) {
+      await logNotification({
+        eventId:      event.id,
+        invitationId: inv.id,
+        type:         rsvpAction === 'confirm' ? 'confirmation' : 'cancellation',
+        message:      rsvpAction === 'confirm'
+          ? `${inv.familyName} confirmó asistencia`
+          : `${inv.familyName} canceló su asistencia`,
+      })
     }
 
     revalidatePath(`/i/${token}`)

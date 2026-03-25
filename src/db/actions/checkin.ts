@@ -5,6 +5,7 @@ import { events, invitations, tablesSeating } from '@/db/schema'
 import { eq, asc, desc, and } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { pusherServer, CHECKIN_CHANNEL, CHECKIN_EVENT } from '@/lib/pusher'
+import { logNotification } from './notifications'
 
 export type CheckInResult = {
   familyName: string
@@ -66,13 +67,24 @@ export async function checkInByToken(
       if (t) { tableNumber = t.number; tableName = t.name }
     }
 
-    if (!alreadyPresent && pusherServer) {
-      await pusherServer.trigger(CHECKIN_CHANNEL, CHECKIN_EVENT, {
-        familyName:  inv.familyName,
-        totalPasses: inv.totalPasses,
-        tableNumber,
-        checkedInAt: new Date().toISOString(),
-      }).catch(console.error)
+    if (!alreadyPresent) {
+      const [event] = await db.select({ id: events.id }).from(events).limit(1)
+      if (event) {
+        await logNotification({
+          eventId:      event.id,
+          invitationId: inv.id,
+          type:         'checkin',
+          message:      `${inv.familyName} llegó al evento (${inv.totalPasses} pase${inv.totalPasses > 1 ? 's' : ''})`,
+        })
+      }
+      if (pusherServer) {
+        await pusherServer.trigger(CHECKIN_CHANNEL, CHECKIN_EVENT, {
+          familyName:  inv.familyName,
+          totalPasses: inv.totalPasses,
+          tableNumber,
+          checkedInAt: new Date().toISOString(),
+        }).catch(console.error)
+      }
     }
 
     revalidatePath('/checkin')

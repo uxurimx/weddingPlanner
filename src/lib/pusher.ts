@@ -16,5 +16,8 @@ export const pusherServer = configured
     })
   : null
 
-export const CHECKIN_CHANNEL = 'wedding-checkin'
-export const CHECKIN_EVENT   = 'guest-arrived'
+export const CHECKIN_CHANNEL    = 'wedding-checkin'
+export const CHECKIN_EVENT      = 'guest-arrived'
+
+export const ADMIN_CHANNEL      = 'wedding-admin'
+export const NOTIFICATION_EVENT = 'notification'

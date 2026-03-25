@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { db } from '@/db'
 import { events, invitations, mediaUploads } from '@/db/schema'
 import { eq } from 'drizzle-orm'
+import { logNotification } from '@/db/actions/notifications'
 
 const f = createUploadthing()
 
@@ -28,6 +29,11 @@ export const ourFileRouter = {
         fileName: file.name,
         fileSize: file.size,
         mimeType: file.type,
+      })
+      await logNotification({
+        eventId: metadata.eventId,
+        type:    'photo',
+        message: `Fotógrafo subió ${file.name}`,
       })
     }),
 
@@ -56,6 +62,18 @@ export const ourFileRouter = {
         fileName:     file.name,
         fileSize:     file.size,
         mimeType:     file.type,
+      })
+      // Look up family name for the notification message
+      const [inv] = await db
+        .select({ familyName: invitations.familyName })
+        .from(invitations)
+        .where(eq(invitations.id, metadata.invitationId))
+        .limit(1)
+      await logNotification({
+        eventId:      metadata.eventId,
+        invitationId: metadata.invitationId,
+        type:         isVideo ? 'video' : 'photo',
+        message:      `${inv?.familyName ?? 'Invitado'} compartió ${isVideo ? 'un video' : 'una foto'}`,
       })
     }),
 } satisfies FileRouter

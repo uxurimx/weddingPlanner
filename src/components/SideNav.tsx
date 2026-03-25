@@ -19,7 +19,8 @@ import {
 } from "lucide-react";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { siteConfig } from "@/config/site";
-import ThemeToggle from "@/components/ThemeToggle";
+import ThemeToggle from "@/components/ThemeToggle"
+import NotificationBell from "@/components/NotificationBell";
 
 type NavItem = {
   name: string;
@@ -141,7 +142,10 @@ export default function SideNav() {
       <div className="mt-auto pt-4 space-y-3 border-t" style={{ borderColor: "var(--border)" }}>
         <div className="flex items-center justify-between px-2">
           <span className="text-xs" style={{ color: "var(--fg-muted)" }}>Tema</span>
-          <ThemeToggle />
+          <div className="flex items-center gap-1">
+            <NotificationBell />
+            <ThemeToggle />
+          </div>
         </div>
         <div
           className="flex items-center gap-3 px-2 py-2.5 rounded-xl border"
