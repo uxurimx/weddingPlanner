@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from '@/db'
-import { events, invitations, mediaUploads } from '@/db/schema'
+import { events, invitations, mediaUploads, videoMessages } from '@/db/schema'
 import { eq, desc, and, isNull } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { UTApi } from 'uploadthing/server'
@@ -162,6 +162,48 @@ export async function regeneratePhotographerToken(): Promise<{ token?: string; e
   } catch {
     return { error: 'Error al regenerar el token.' }
   }
+}
+
+// ─── Video messages for the couple ───────────────────────────────────────────
+
+export type VideoMessageRow = {
+  id: string
+  url: string
+  invitationId: string
+  familyName: string | null
+  recordedAt: Date
+  isViewedByCouple: boolean
+}
+
+export async function getVideoMessages(): Promise<VideoMessageRow[]> {
+  const eventId = await getEventId()
+
+  const rows = await db
+    .select({
+      id:               videoMessages.id,
+      url:              videoMessages.url,
+      invitationId:     videoMessages.invitationId,
+      familyName:       invitations.familyName,
+      recordedAt:       videoMessages.recordedAt,
+      isViewedByCouple: videoMessages.isViewedByCouple,
+    })
+    .from(videoMessages)
+    .leftJoin(invitations, eq(videoMessages.invitationId, invitations.id))
+    .where(eq(videoMessages.eventId, eventId))
+    .orderBy(desc(videoMessages.recordedAt))
+
+  return rows.map(r => ({
+    ...r,
+    recordedAt: r.recordedAt ?? new Date(),
+  }))
+}
+
+export async function markVideoMessageViewed(id: string): Promise<void> {
+  await db
+    .update(videoMessages)
+    .set({ isViewedByCouple: true })
+    .where(eq(videoMessages.id, id))
+  revalidatePath('/social')
 }
 
 // ─── Get uploads for a guest invitation ───────────────────────────────────────

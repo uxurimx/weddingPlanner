@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Trash2, ExternalLink, ImageIcon, Video, AlertCircle } from 'lucide-react'
+import { Trash2, Maximize2, ImageIcon, Video, AlertCircle } from 'lucide-react'
 import { deleteMediaUpload, type MediaRow, type MediaStats } from '@/db/actions/media'
 import { useRouter } from 'next/navigation'
+import MediaViewer from './MediaViewer'
 
 type Filter = 'all' | 'photographer' | 'guest-photo' | 'guest-video'
 
@@ -29,6 +30,7 @@ export default function MediaGallery({
   const [filter, setFilter] = useState<Filter>('all')
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [viewerIndex, setViewerIndex] = useState<number | null>(null)
 
   const filtered = initialPhotos.filter(p => {
     if (filter === 'all')          return true
@@ -110,11 +112,12 @@ export default function MediaGallery({
         </div>
       ) : (
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-          {filtered.map(item => (
+          {filtered.map((item, idx) => (
             <div
               key={item.id}
-              className="relative aspect-square rounded-xl overflow-hidden border group"
+              className="relative aspect-square rounded-xl overflow-hidden border group cursor-pointer"
               style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}
+              onClick={() => setViewerIndex(idx)}
             >
               {item.type === 'photo' ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -145,16 +148,11 @@ export default function MediaGallery({
 
               {/* Hover actions */}
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                <a
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 transition-colors"
-                >
-                  <ExternalLink className="w-4 h-4 text-white" />
-                </a>
+                <div className="p-1.5 rounded-lg bg-white/20">
+                  <Maximize2 className="w-4 h-4 text-white" />
+                </div>
                 <button
-                  onClick={() => handleDelete(item.id)}
+                  onClick={(e) => { e.stopPropagation(); handleDelete(item.id) }}
                   disabled={deletingId === item.id}
                   className="p-1.5 rounded-lg bg-red-500/80 hover:bg-red-500 transition-colors disabled:opacity-50"
                 >
@@ -174,6 +172,15 @@ export default function MediaGallery({
             </div>
           ))}
         </div>
+      )}
+
+      {viewerIndex !== null && (
+        <MediaViewer
+          items={filtered}
+          index={viewerIndex}
+          onClose={() => setViewerIndex(null)}
+          onNavigate={setViewerIndex}
+        />
       )}
     </div>
   )
