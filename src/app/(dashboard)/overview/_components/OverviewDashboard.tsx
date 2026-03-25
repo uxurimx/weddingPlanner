@@ -55,7 +55,7 @@ function StatCard({
           <Icon className={`w-3.5 h-3.5 text-${color}-500`} />
         </div>
       </div>
-      <p className="font-outfit font-bold text-3xl mb-1" style={{ color: 'var(--fg)' }}>{value}</p>
+      <p className="font-outfit font-bold text-2xl sm:text-3xl mb-1" style={{ color: 'var(--fg)' }}>{value}</p>
       {sub && <p className="text-[11px]" style={{ color: 'var(--fg-muted)' }}>{sub}</p>}
     </div>
   )
@@ -139,7 +139,7 @@ export default function OverviewDashboard({
   const rsvpTotal = s.confirmed + s.cancelled + s.pending
 
   return (
-    <div className="p-8 max-w-5xl space-y-8">
+    <div className="p-4 sm:p-8 max-w-5xl space-y-6 sm:space-y-8">
       {/* Header */}
       <div>
         <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--fg-muted)' }}>

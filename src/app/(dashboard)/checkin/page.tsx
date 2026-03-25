@@ -11,7 +11,7 @@ export default async function CheckInPage() {
   ])
 
   return (
-    <div className="p-6 max-w-2xl">
+    <div className="p-4 sm:p-6 max-w-2xl">
       <div className="flex items-start justify-between mb-6">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--fg-muted)' }}>

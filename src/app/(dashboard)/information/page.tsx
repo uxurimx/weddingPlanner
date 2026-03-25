@@ -14,7 +14,7 @@ export default async function InformationPage() {
   const data = await getEventData()
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-4 sm:p-8 max-w-4xl">
       {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div>

@@ -8,7 +8,7 @@ export default async function GuestsPage() {
   const { invitations, tables } = await getInvitationsData()
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-4 sm:p-8 max-w-4xl">
       <div className="flex items-start justify-between mb-8">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--fg-muted)' }}>

@@ -12,7 +12,7 @@ export default async function SettingsPage() {
   const [user, flags] = await Promise.all([currentUser(), getEventFlags()])
 
   return (
-    <div className="p-8 max-w-2xl space-y-6">
+    <div className="p-4 sm:p-8 max-w-2xl space-y-6">
       {/* Page header */}
       <div>
         <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--fg-muted)' }}>

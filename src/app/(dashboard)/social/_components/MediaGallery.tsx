@@ -63,7 +63,7 @@ export default function MediaGallery({
   return (
     <div className="space-y-5">
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         <StatCard label="Fotos oficiales" value={stats.photographerPhotos} color="text-indigo-500" />
         <StatCard label="Fotos invitados" value={stats.guestPhotos}        color="text-violet-500" />
         <StatCard label="Videos"          value={stats.guestVideos}        color="text-blue-500" />

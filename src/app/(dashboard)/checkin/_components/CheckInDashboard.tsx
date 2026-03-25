@@ -121,7 +121,7 @@ function StatsBar({ stats }: { stats: CheckInStats }) {
         />
       </div>
       {/* Mini stats */}
-      <div className="grid grid-cols-4 gap-2 pt-1">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
         {[
           { label: 'Invitaciones', value: stats.presentCount, color: 'text-violet-500' },
           { label: 'Confirmados',  value: stats.confirmed,    color: 'text-emerald-500' },

@@ -8,7 +8,7 @@ export default async function SocialPage() {
   const { photos, stats } = await getMediaForAdmin()
 
   return (
-    <div className="p-6 max-w-4xl">
+    <div className="p-4 sm:p-6 max-w-4xl">
       <div className="flex items-start justify-between mb-6">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--fg-muted)' }}>
