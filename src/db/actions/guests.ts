@@ -259,3 +259,53 @@ export async function seedDefaultTables(): Promise<ActionState> {
     return { error: 'Error al crear las mesas.' }
   }
 }
+
+// ─── Bulk Import ──────────────────────────────────────────────────────────────
+
+export type ImportGuest = {
+  nombre: string
+  telefono?: string | null
+  pases?: number
+}
+
+export async function bulkImportInvitations(
+  guests: ImportGuest[],
+): Promise<{ imported: number; error?: string }> {
+  try {
+    const eventId = await getFirstEventId()
+    if (!eventId) return { imported: 0, error: 'No se encontró el evento.' }
+
+    // Determine next invitationNumber
+    const existing = await db
+      .select({ invitationNumber: invitations.invitationNumber })
+      .from(invitations)
+      .where(eq(invitations.eventId, eventId))
+
+    const maxNum = existing.reduce((max, r) => Math.max(max, r.invitationNumber ?? 0), 0)
+
+    const rows = guests
+      .filter(g => g.nombre.trim())
+      .map((g, i) => ({
+        eventId,
+        familyName:       g.nombre.trim(),
+        contactName:      g.nombre.trim(),
+        contactPhone:     g.telefono?.trim() || null,
+        totalPasses:      Math.max(1, g.pases ?? 1),
+        invitationNumber: maxNum + i + 1,
+        status:           'created' as const,
+      }))
+
+    if (rows.length === 0) return { imported: 0, error: 'No hay filas válidas para importar.' }
+
+    // Insert in batches of 50
+    for (let i = 0; i < rows.length; i += 50) {
+      await db.insert(invitations).values(rows.slice(i, i + 50))
+    }
+
+    revalidatePath('/guests')
+    return { imported: rows.length }
+  } catch (e) {
+    console.error(e)
+    return { imported: 0, error: 'Error al importar invitaciones.' }
+  }
+}

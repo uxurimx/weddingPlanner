@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Plus, QrCode, Pencil, Trash2, MessageCircle, FileDown,
-  Search, X, Users,
+  Search, X, Users, FileUp,
 } from 'lucide-react'
 import {
   deleteInvitation,
@@ -14,6 +14,7 @@ import {
 } from '@/db/actions/guests'
 import InvitationForm from './InvitationForm'
 import QRModal from './QRModal'
+import ImportModal from './ImportModal'
 
 const STATUS_META = {
   created:   { label: 'Creado',     color: 'bg-gray-500/10 text-gray-500 border-gray-500/20' },
@@ -61,6 +62,7 @@ export default function InvitationsTab({
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('')
   const [tableFilter, setTableFilter] = useState<string>('')
+  const [showImport, setShowImport] = useState(false)
 
   // ─── Stats ────────────────────────────────────────────────────────────────
   const totalPasses    = invitations.reduce((s, i) => s + i.totalPasses, 0)
@@ -175,7 +177,18 @@ export default function InvitationsTab({
         >
           <FileDown className="w-3.5 h-3.5" /> CSV
         </button>
+
+        {/* Import */}
+        <button
+          onClick={() => setShowImport(true)}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl border text-sm font-medium transition-colors hover:border-emerald-500/50 hover:text-emerald-500"
+          style={{ borderColor: 'var(--border)', color: 'var(--fg-muted)' }}
+        >
+          <FileUp className="w-3.5 h-3.5" /> Importar
+        </button>
       </div>
+
+      {showImport && <ImportModal onClose={() => setShowImport(false)} />}
 
       {/* Add form / button */}
       {editing === 'new' ? (
