@@ -251,7 +251,7 @@ export default function InvitationView({ event, couple, venues, itinerary, gifts
     return <PresentView invitation={invitation} event={event} itinerary={itinerary} couple={couple} />
   }
 
-  const groomName = couple?.groomName || 'Jahir'
+  const groomName = couple?.groomName || 'Jair'
   const brideName = couple?.brideName || 'Gilliane'
   const eventDateStr = formatEventDate(event.date)
   const weddingDate = event.date.toISOString()
@@ -286,16 +286,16 @@ export default function InvitationView({ event, couple, venues, itinerary, gifts
                 Join us for the Wedding of
               </p>
 
-              <BouquetSVG />
+              {/* <BouquetSVG /> */}
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 16px', marginTop: 8 }}>
+              {/* <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 16px', marginTop: 8 }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--w-blue)', fontStyle: 'italic' }}>
                   {groomName}
                 </span>
                 <span style={{ fontSize: '0.75rem', color: 'var(--w-blue)', fontStyle: 'italic' }}>
                   06. 2026
                 </span>
-              </div>
+              </div> */}
 
               <p
                 style={{
@@ -306,7 +306,8 @@ export default function InvitationView({ event, couple, venues, itinerary, gifts
                   marginTop: 4,
                 }}
               >
-                {brideName} + {groomName}
+                {/* {brideName} + {groomName} */}
+                Gilliane + Jair
               </p>
             </div>
           </AnimatedSection>
