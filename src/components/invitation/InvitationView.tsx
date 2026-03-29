@@ -1,237 +1,227 @@
 import type { PublicData } from '@/db/actions/public'
 import type { invitations } from '@/db/schema'
-import Countdown from './Countdown'
-import RSVPSection from './RSVPSection'
-import InvitationQR from './InvitationQR'
 import AnimatedSection from './AnimatedSection'
 import PresentView from './PresentView'
+import RSVPSection from './RSVPSection'
+import GuestCard from './GuestCard'
+import Countdown from './Countdown'
 
-type InvitationViewProps = PublicData & {
-  invitation?: typeof invitations.$inferSelect | null
-}
+type Props = PublicData & { invitation?: typeof invitations.$inferSelect | null }
 
-// ─── Utilities ────────────────────────────────────────────────────────────────
+// ─── SVG Decorations ──────────────────────────────────────────────────────────
 
-function Divider({ sm = false }: { sm?: boolean }) {
+function BouquetSVG() {
   return (
-    <div className="flex items-center gap-3">
-      <div className="h-px flex-1" style={{ backgroundColor: 'var(--w-cream-border)' }} />
-      <span style={{ color: 'var(--w-gold)', fontSize: sm ? 6 : 8 }}>◆</span>
-      <div className="h-px flex-1" style={{ backgroundColor: 'var(--w-cream-border)' }} />
-    </div>
+    <svg
+      viewBox="0 0 120 130"
+      style={{ color: 'var(--w-blue)', width: 110, height: 120, display: 'block', margin: '0 auto' }}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {/* Center rose */}
+      <circle cx="60" cy="30" r="13" strokeWidth="1.1" />
+      <circle cx="60" cy="30" r="6" strokeWidth="0.7" />
+      {/* Petals of center rose */}
+      <circle cx="60" cy="15" r="5" strokeWidth="0.7" />
+      <circle cx="73" cy="19" r="5" strokeWidth="0.7" />
+      <circle cx="73" cy="41" r="5" strokeWidth="0.7" />
+      <circle cx="60" cy="45" r="5" strokeWidth="0.7" />
+      <circle cx="47" cy="41" r="5" strokeWidth="0.7" />
+      <circle cx="47" cy="19" r="5" strokeWidth="0.7" />
+      {/* Left flower */}
+      <circle cx="31" cy="50" r="10" strokeWidth="1" />
+      <circle cx="31" cy="50" r="4" strokeWidth="0.7" />
+      {/* Right flower */}
+      <circle cx="89" cy="50" r="10" strokeWidth="1" />
+      <circle cx="89" cy="50" r="4" strokeWidth="0.7" />
+      {/* Left small bud */}
+      <ellipse cx="17" cy="62" rx="6" ry="8" strokeWidth="0.8" />
+      {/* Right small bud */}
+      <ellipse cx="103" cy="62" rx="6" ry="8" strokeWidth="0.8" />
+      {/* Leaves - filled */}
+      <path d="M39,64 Q25,55 27,68 Q36,64 39,64Z" fill="currentColor" strokeWidth="0" opacity="0.85" />
+      <path d="M81,64 Q95,55 93,68 Q84,64 81,64Z" fill="currentColor" strokeWidth="0" opacity="0.85" />
+      <path d="M46,70 Q33,62 35,74 Q44,70 46,70Z" fill="currentColor" strokeWidth="0" opacity="0.75" />
+      <path d="M74,70 Q87,62 85,74 Q76,70 74,70Z" fill="currentColor" strokeWidth="0" opacity="0.75" />
+      {/* Stems */}
+      <path d="M60,43 L60,90" strokeWidth="1.2" />
+      <path d="M31,60 Q44,74 55,89" strokeWidth="1" />
+      <path d="M89,60 Q76,74 65,89" strokeWidth="1" />
+      <path d="M17,70 Q36,78 52,89" strokeWidth="0.8" />
+      <path d="M103,70 Q84,78 68,89" strokeWidth="0.8" />
+      {/* Ribbon tie */}
+      <path d="M47,89 Q60,98 73,89" strokeWidth="1.3" />
+      {/* Left bow loop */}
+      <path d="M47,89 Q36,81 38,93 Q45,91 47,89" strokeWidth="1" />
+      {/* Right bow loop */}
+      <path d="M73,89 Q84,81 82,93 Q75,91 73,89" strokeWidth="1" />
+      {/* Ribbon tail stems */}
+      <path d="M43,95 L38,110" strokeWidth="0.9" />
+      <path d="M60,97 L60,112" strokeWidth="0.9" />
+      <path d="M77,95 L82,110" strokeWidth="0.9" />
+    </svg>
   )
 }
 
-function SectionHeader({ children }: { children: React.ReactNode }) {
+function OrnamentDivider() {
   return (
-    <div className="space-y-2 mb-5">
-      <Divider />
-      <p
-        className="text-center text-[10px] uppercase tracking-[0.3em] font-semibold"
-        style={{ color: 'var(--w-text-muted)' }}
+    <div style={{ color: 'var(--w-blue)', padding: '8px 0' }}>
+      <svg
+        viewBox="0 0 280 24"
+        style={{ width: '100%', maxWidth: 300, display: 'block', margin: '0 auto' }}
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
       >
-        {children}
-      </p>
-      <Divider />
+        {/* Left wave */}
+        <path d="M4,12 Q12,6 20,12 Q28,18 36,12 Q44,6 52,12" strokeWidth="0.9" />
+        {/* Left line */}
+        <line x1="53" y1="12" x2="96" y2="12" strokeWidth="0.6" />
+        {/* Left small flower */}
+        <circle cx="100" cy="12" r="2" strokeWidth="0.7" />
+        {/* Center diamond */}
+        <path d="M128,5 L140,12 L128,19 L116,12 Z" strokeWidth="0.9" />
+        {/* Right small flower */}
+        <circle cx="180" cy="12" r="2" strokeWidth="0.7" />
+        {/* Right line */}
+        <line x1="184" y1="12" x2="227" y2="12" strokeWidth="0.6" />
+        {/* Right wave */}
+        <path d="M228,12 Q236,6 244,12 Q252,18 260,12 Q268,6 276,12" strokeWidth="0.9" />
+      </svg>
     </div>
   )
 }
 
-function formatTime(date: Date | null) {
+function SimpleWave() {
+  return (
+    <div style={{ color: 'var(--w-blue)', textAlign: 'center', padding: '4px 0' }}>
+      <svg
+        viewBox="0 0 80 16"
+        style={{ width: 80, height: 16, display: 'inline-block' }}
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+      >
+        <path d="M4,8 Q12,3 20,8 Q28,13 36,8 Q44,3 52,8 Q60,13 68,8 Q74,5 76,8" strokeWidth="1" />
+      </svg>
+    </div>
+  )
+}
+
+function CornerOrnamentBox({ children }: { children: React.ReactNode }) {
+  const corner = (
+    <svg viewBox="0 0 36 36" style={{ width: 36, height: 36 }} fill="none" stroke="currentColor" strokeLinecap="round">
+      <path d="M4,18 Q4,4 18,4" strokeWidth="1" />
+      <path d="M7,18 Q7,7 18,7" strokeWidth="0.7" />
+      <circle cx="5" cy="5" r="2" fill="currentColor" strokeWidth="0" />
+    </svg>
+  )
+  return (
+    <div style={{ position: 'relative', padding: '20px 16px', color: 'var(--w-blue)' }}>
+      <div style={{ position: 'absolute', top: 0, left: 0 }}>{corner}</div>
+      <div style={{ position: 'absolute', top: 0, right: 0, transform: 'scaleX(-1)' }}>{corner}</div>
+      <div style={{ position: 'absolute', bottom: 0, left: 0, transform: 'scaleY(-1)' }}>{corner}</div>
+      <div style={{ position: 'absolute', bottom: 0, right: 0, transform: 'scale(-1)' }}>{corner}</div>
+      {children}
+    </div>
+  )
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function formatEventDate(date: Date): string {
+  return date
+    .toLocaleDateString('es-MX', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+    .replace(/^\w/, c => c.toUpperCase())
+    .replace(' de ', ' ')
+    .replace(' de ', ' ')
+}
+
+function formatTime(date: Date | null): string | null {
   if (!date) return null
   return date.toLocaleTimeString('es-MX', { hour: 'numeric', minute: '2-digit', hour12: true })
 }
 
-// ─── Sections ─────────────────────────────────────────────────────────────────
+// ─── Venue Chip ───────────────────────────────────────────────────────────────
 
-function HeroSection({ couple, event }: { couple: InvitationViewProps['couple']; event: InvitationViewProps['event'] }) {
-  const groomName = couple?.groomName || 'Jahir'
-  const brideName = couple?.brideName || 'Gilliane'
+function VenueChip({ venue }: { venue: Props['venues'][number] }) {
+  const time = formatTime(venue.startTime)
+  const sectionTitle = venue.type === 'ceremony' ? 'Discurso Bíblico' : 'Recepción'
 
   return (
-    <section className="text-center space-y-5 pt-6 pb-4">
-      <p
-        className="text-[10px] uppercase tracking-[0.35em]"
-        style={{ color: 'var(--w-text-muted)' }}
-      >
-        Con mucho amor, los invitan a celebrar su boda
+    <div className="text-center space-y-3">
+      <p style={{ fontFamily: 'var(--font-dancing)', fontSize: '2.2rem', color: 'var(--w-blue)', lineHeight: 1.1 }}>
+        {sectionTitle}
       </p>
-
-      <div className="space-y-1">
-        <h1
-          className="font-outfit text-5xl sm:text-6xl font-bold leading-tight"
-          style={{ color: 'var(--w-text)' }}
-        >
-          {groomName}
-        </h1>
-        <p
-          className="font-outfit text-2xl"
-          style={{ color: 'var(--w-gold)' }}
-        >
-          &amp;
+      {time && (
+        <p style={{ fontSize: '1rem', color: 'var(--w-text)', fontStyle: 'italic' }}>
+          {time}.
         </p>
-        <h1
-          className="font-outfit text-5xl sm:text-6xl font-bold leading-tight"
-          style={{ color: 'var(--w-text)' }}
+      )}
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'stretch',
+            borderRadius: 999,
+            border: '1px solid var(--w-blue-border)',
+            overflow: 'hidden',
+            maxWidth: '100%',
+          }}
         >
-          {brideName}
-        </h1>
-      </div>
-
-      <Divider />
-
-      <div className="space-y-1.5">
-        <p
-          className="text-sm uppercase tracking-[0.2em]"
-          style={{ color: 'var(--w-text-muted)' }}
-        >
-          Sábado · 6 de Junio · 2026
-        </p>
-        <p
-          className="text-xs"
-          style={{ color: 'var(--w-text-light)' }}
-        >
-          Culiacán, Sinaloa · México
-        </p>
-      </div>
-    </section>
-  )
-}
-
-function QuoteSection({ couple }: { couple: InvitationViewProps['couple'] }) {
-  if (!couple?.quote) return null
-  return (
-    <section className="text-center space-y-4 py-2">
-      <Divider sm />
-      <div className="px-4">
-        <p
-          className="text-sm italic leading-relaxed"
-          style={{ color: 'var(--w-text)' }}
-        >
-          &ldquo;{couple.quote}&rdquo;
-        </p>
-        {couple.quoteSource && (
-          <p
-            className="text-[10px] uppercase tracking-widest mt-3"
-            style={{ color: 'var(--w-gold)' }}
-          >
-            — {couple.quoteSource}
-          </p>
-        )}
-      </div>
-      <Divider sm />
-    </section>
-  )
-}
-
-function ParentsSection({ couple }: { couple: InvitationViewProps['couple'] }) {
-  if (!couple?.groomFather && !couple?.groomMother && !couple?.brideFather && !couple?.brideMother) return null
-  return (
-    <section className="text-center space-y-3">
-      <p
-        className="text-[10px] uppercase tracking-[0.25em]"
-        style={{ color: 'var(--w-text-light)' }}
-      >
-        Hijos de
-      </p>
-      <div className="grid grid-cols-2 gap-4">
-        {(couple.groomFather || couple.groomMother) && (
-          <div className="space-y-0.5">
-            {couple.groomFather && (
-              <p className="text-xs font-medium" style={{ color: 'var(--w-text)' }}>{couple.groomFather}</p>
-            )}
-            {couple.groomMother && (
-              <p className="text-xs" style={{ color: 'var(--w-text-muted)' }}>& {couple.groomMother}</p>
-            )}
-          </div>
-        )}
-        {(couple.brideFather || couple.brideMother) && (
-          <div className="space-y-0.5">
-            {couple.brideFather && (
-              <p className="text-xs font-medium" style={{ color: 'var(--w-text)' }}>{couple.brideFather}</p>
-            )}
-            {couple.brideMother && (
-              <p className="text-xs" style={{ color: 'var(--w-text-muted)' }}>& {couple.brideMother}</p>
-            )}
-          </div>
-        )}
-      </div>
-    </section>
-  )
-}
-
-function InvitationTextSection({ couple }: { couple: InvitationViewProps['couple'] }) {
-  if (!couple?.invitationText) return null
-  return (
-    <section className="text-center">
-      <p
-        className="text-sm leading-relaxed whitespace-pre-line"
-        style={{ color: 'var(--w-text-muted)' }}
-      >
-        {couple.invitationText}
-      </p>
-    </section>
-  )
-}
-
-function VenueCard({ venue }: { venue: InvitationViewProps['venues'][number] }) {
-  const isReception = venue.type === 'reception'
-  const emoji = isReception ? '🥂' : '⛪'
-  const label = isReception ? 'Recepción' : 'Ceremonia'
-  const timeStr = formatTime(venue.startTime)
-
-  return (
-    <div
-      className="rounded-2xl border p-5 space-y-3"
-      style={{ backgroundColor: 'white', borderColor: 'var(--w-cream-border)' }}
-    >
-      <div className="flex items-start justify-between gap-2">
-        <div>
           <span
-            className="text-[9px] uppercase tracking-[0.2em] font-bold"
-            style={{ color: 'var(--w-text-light)' }}
-          >
-            {label}
-          </span>
-          <p
-            className="text-sm font-semibold font-outfit mt-0.5"
-            style={{ color: 'var(--w-text)' }}
+            style={{
+              padding: '6px 14px',
+              fontSize: '0.72rem',
+              color: 'var(--w-text)',
+              backgroundColor: 'white',
+              maxWidth: 160,
+              textAlign: 'center',
+              lineHeight: 1.3,
+              display: 'flex',
+              alignItems: 'center',
+            }}
           >
             {venue.name}
-          </p>
+          </span>
+          {venue.address && (
+            <span
+              style={{
+                padding: '6px 12px',
+                fontSize: '0.72rem',
+                color: 'var(--w-text-muted)',
+                backgroundColor: 'var(--w-blue-border)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                maxWidth: 160,
+                lineHeight: 1.3,
+              }}
+            >
+              <span>📍</span>
+              <span>
+                {venue.address}
+                {venue.city ? `, ${venue.city}` : ''}
+              </span>
+            </span>
+          )}
         </div>
-        <span className="text-2xl flex-shrink-0">{emoji}</span>
       </div>
-
-      {timeStr && (
-        <p
-          className="text-sm font-medium"
-          style={{ color: 'var(--w-blue)' }}
-        >
-          {timeStr}
-        </p>
-      )}
-
-      {venue.address && (
-        <p className="text-xs leading-relaxed" style={{ color: 'var(--w-text-muted)' }}>
-          {venue.address}
-          {venue.city ? `, ${venue.city}` : ''}
-        </p>
-      )}
-
       {(venue.googleMapsUrl || venue.wazeUrl) && (
-        <div className="flex gap-2 pt-1">
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
           {venue.googleMapsUrl && (
             <a
               href={venue.googleMapsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 text-center text-xs font-medium py-2 rounded-xl border transition-colors hover:opacity-80"
-              style={{
-                borderColor: 'var(--w-blue-border)',
-                color: 'var(--w-blue)',
-                backgroundColor: 'var(--w-blue-border)',
-              }}
+              style={{ fontSize: '0.7rem', color: 'var(--w-blue)', textDecoration: 'underline' }}
             >
               Google Maps
             </a>
@@ -241,12 +231,7 @@ function VenueCard({ venue }: { venue: InvitationViewProps['venues'][number] }) 
               href={venue.wazeUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 text-center text-xs font-medium py-2 rounded-xl border transition-colors hover:opacity-80"
-              style={{
-                borderColor: 'var(--w-cream-border)',
-                color: 'var(--w-text-muted)',
-                backgroundColor: 'transparent',
-              }}
+              style={{ fontSize: '0.7rem', color: 'var(--w-blue)', textDecoration: 'underline' }}
             >
               Waze
             </a>
@@ -257,331 +242,407 @@ function VenueCard({ venue }: { venue: InvitationViewProps['venues'][number] }) 
   )
 }
 
-function VenuesSection({ venues }: { venues: InvitationViewProps['venues'] }) {
-  if (venues.length === 0) return null
-  return (
-    <section className="space-y-4">
-      <SectionHeader>Celebración</SectionHeader>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {venues.map(v => <VenueCard key={v.id} venue={v} />)}
-      </div>
-    </section>
-  )
-}
+// ─── Main Component ────────────────────────────────────────────────────────────
 
-function ItinerarySection({ itinerary }: { itinerary: InvitationViewProps['itinerary'] }) {
-  if (itinerary.length === 0) return null
+export default function InvitationView({ event, couple, venues, itinerary, gifts, invitation }: Props) {
+  // Checked-in guests see the present view
+  if (invitation?.status === 'present') {
+    return <PresentView invitation={invitation} event={event} itinerary={itinerary} couple={couple} />
+  }
+
+  const groomName = couple?.groomName || 'Jahir'
+  const brideName = couple?.brideName || 'Gilliane'
+  const eventDateStr = formatEventDate(event.date)
+  const weddingDate = event.date.toISOString()
+
+  const ceremony  = venues.find(v => v.type === 'ceremony')
+  const reception = venues.find(v => v.type === 'reception')
+
+  const giftRegistries = gifts.filter(g => g.type === 'registry')
+  const bankTransfers  = gifts.filter(g => g.type === 'bank_transfer')
+
   return (
-    <section>
-      <SectionHeader>Programa del Evento</SectionHeader>
-      <div className="relative">
-        {/* Vertical line */}
-        <div
-          className="absolute left-[30px] top-3 bottom-3 w-px"
-          style={{ backgroundColor: 'var(--w-cream-border)' }}
-        />
-        <div className="space-y-0">
-          {itinerary.map((item, i) => (
-            <div key={item.id} className="flex gap-4 py-3 relative">
-              {/* Icon bubble */}
-              <div
-                className="w-[60px] h-8 rounded-full flex items-center justify-center flex-shrink-0 text-sm z-10 border"
-                style={{ backgroundColor: 'var(--w-cream-dark)', borderColor: 'var(--w-cream-border)' }}
+    <div style={{ backgroundColor: 'var(--w-cream)', minHeight: '100vh' }}>
+      <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px 20px 40px' }}>
+
+        <CornerOrnamentBox>
+
+          {/* HERO */}
+          <AnimatedSection>
+            <div style={{ textAlign: 'center', paddingTop: 12, paddingBottom: 8 }}>
+              <p
+                style={{
+                  fontFamily: 'var(--font-dancing)',
+                  fontSize: '1.3rem',
+                  color: 'var(--w-blue)',
+                  lineHeight: 1.3,
+                  marginBottom: 12,
+                }}
               >
-                {item.icon || '📌'}
+                Join us for the Wedding of
+              </p>
+
+              <BouquetSVG />
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 16px', marginTop: 8 }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--w-blue)', fontStyle: 'italic' }}>
+                  {groomName}
+                </span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--w-blue)', fontStyle: 'italic' }}>
+                  06. 2026
+                </span>
               </div>
-              {/* Content */}
-              <div className="flex-1 min-w-0 pt-0.5">
-                <div className="flex items-baseline gap-2 flex-wrap">
-                  <span
-                    className="text-[10px] font-bold uppercase tracking-wider"
-                    style={{ color: 'var(--w-blue)' }}
+
+              <p
+                style={{
+                  fontFamily: 'var(--font-script)',
+                  fontSize: '3rem',
+                  color: 'var(--w-blue)',
+                  lineHeight: 1.15,
+                  marginTop: 4,
+                }}
+              >
+                {brideName} + {groomName}
+              </p>
+            </div>
+          </AnimatedSection>
+
+          <AnimatedSection><OrnamentDivider /></AnimatedSection>
+
+          {/* COUNTDOWN */}
+          <AnimatedSection>
+            <div style={{ padding: '4px 0' }}>
+              <Countdown weddingDate={weddingDate} />
+            </div>
+          </AnimatedSection>
+
+          <AnimatedSection><OrnamentDivider /></AnimatedSection>
+
+          {/* GUEST CARD */}
+          {invitation && (
+            <AnimatedSection>
+              <div
+                style={{
+                  border: '1px solid var(--w-blue-border)',
+                  borderRadius: 16,
+                  backgroundColor: 'white',
+                  margin: '4px 0',
+                }}
+              >
+                <GuestCard
+                  familyName={invitation.familyName}
+                  contactName={invitation.contactName}
+                  totalPasses={invitation.totalPasses}
+                  token={invitation.token}
+                  status={invitation.status}
+                />
+              </div>
+            </AnimatedSection>
+          )}
+
+          {invitation && <AnimatedSection><OrnamentDivider /></AnimatedSection>}
+
+          {/* NOS COMPLACE */}
+          <AnimatedSection>
+            <div style={{ textAlign: 'center', padding: '8px 8px' }}>
+              <p
+                style={{
+                  fontFamily: 'var(--font-dancing)',
+                  fontSize: '1.7rem',
+                  color: 'var(--w-blue)',
+                  lineHeight: 1.3,
+                  marginBottom: 12,
+                }}
+              >
+                Nos complace que seas parte<br />de este día tan especial.
+              </p>
+              {couple?.quote && (
+                <>
+                  <p
+                    style={{
+                      fontSize: '0.8rem',
+                      color: 'var(--w-text-muted)',
+                      fontStyle: 'italic',
+                      lineHeight: 1.6,
+                      marginBottom: 6,
+                    }}
                   >
-                    {item.time}
-                  </span>
+                    &ldquo;{couple.quote}&rdquo;
+                  </p>
+                  {couple.quoteSource && (
+                    <p style={{ fontSize: '0.72rem', color: 'var(--w-text-light)' }}>
+                      ({couple.quoteSource})
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
+          </AnimatedSection>
+
+          <AnimatedSection><OrnamentDivider /></AnimatedSection>
+
+          {/* PARENTS */}
+          {(couple?.groomFather || couple?.groomMother || couple?.brideFather || couple?.brideMother) && (
+            <AnimatedSection>
+              <div style={{ textAlign: 'center', padding: '4px 0' }}>
+                <p
+                  style={{
+                    fontFamily: 'var(--font-dancing)',
+                    fontSize: '1.6rem',
+                    color: 'var(--w-blue)',
+                    marginBottom: 12,
+                  }}
+                >
+                  En compañía de nuestros Padres:
+                </p>
+                <SimpleWave />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 }}>
+                  {(couple.groomFather || couple.groomMother) && (
+                    <div style={{ textAlign: 'center' }}>
+                      {couple.groomFather && (
+                        <p style={{ fontSize: '0.85rem', color: 'var(--w-text)', fontWeight: 500 }}>
+                          {couple.groomFather}
+                        </p>
+                      )}
+                      {couple.groomMother && (
+                        <p style={{ fontSize: '0.82rem', color: 'var(--w-text-muted)' }}>
+                          {couple.groomMother}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  {(couple.brideFather || couple.brideMother) && (
+                    <div style={{ textAlign: 'center' }}>
+                      {couple.brideFather && (
+                        <p style={{ fontSize: '0.85rem', color: 'var(--w-text)', fontWeight: 500 }}>
+                          {couple.brideFather}
+                        </p>
+                      )}
+                      {couple.brideMother && (
+                        <p style={{ fontSize: '0.82rem', color: 'var(--w-text-muted)' }}>
+                          {couple.brideMother}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </AnimatedSection>
+          )}
+
+          <AnimatedSection><OrnamentDivider /></AnimatedSection>
+
+          {/* DATE */}
+          <AnimatedSection>
+            <div style={{ textAlign: 'center', padding: '4px 0' }}>
+              <p
+                style={{
+                  fontFamily: 'var(--font-dancing)',
+                  fontSize: '2.2rem',
+                  color: 'var(--w-blue)',
+                  lineHeight: 1.2,
+                }}
+              >
+                {eventDateStr}
+              </p>
+              <SimpleWave />
+            </div>
+          </AnimatedSection>
+
+          {/* VENUES */}
+          {ceremony && (
+            <AnimatedSection>
+              <div style={{ padding: '8px 0' }}>
+                <VenueChip venue={ceremony} />
+              </div>
+            </AnimatedSection>
+          )}
+
+          {ceremony && reception && <AnimatedSection><OrnamentDivider /></AnimatedSection>}
+
+          {reception && (
+            <AnimatedSection>
+              <div style={{ padding: '8px 0' }}>
+                <VenueChip venue={reception} />
+              </div>
+            </AnimatedSection>
+          )}
+
+          <AnimatedSection><OrnamentDivider /></AnimatedSection>
+
+          {/* PASSES */}
+          {invitation && (
+            <AnimatedSection>
+              <div style={{ textAlign: 'center', padding: '4px 0' }}>
+                <p
+                  style={{
+                    fontFamily: 'var(--font-dancing)',
+                    fontSize: '1.7rem',
+                    color: 'var(--w-blue)',
+                    marginBottom: 16,
+                  }}
+                >
+                  Hemos reservado para ti:
+                </p>
+                <div
+                  style={{
+                    width: 72,
+                    height: 72,
+                    borderRadius: '50%',
+                    border: '1.5px solid var(--w-blue)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 12px',
+                  }}
+                >
                   <span
-                    className="text-sm font-semibold font-outfit"
-                    style={{ color: 'var(--w-text)' }}
+                    style={{
+                      fontFamily: 'var(--font-dancing)',
+                      fontSize: '2.2rem',
+                      color: 'var(--w-blue)',
+                      lineHeight: 1,
+                    }}
                   >
-                    {item.title}
+                    {invitation.totalPasses}
                   </span>
                 </div>
-                {item.description && (
-                  <p className="text-xs mt-0.5" style={{ color: 'var(--w-text-muted)' }}>
-                    {item.description}
+                {event.eventNotes && (
+                  <p style={{ fontSize: '0.72rem', color: 'var(--w-text-muted)', fontStyle: 'italic' }}>
+                    {event.eventNotes}
                   </p>
                 )}
               </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function NotesSection({ event }: { event: InvitationViewProps['event'] }) {
-  if (!event.dressCode && !event.eventNotes) return null
-  return (
-    <section className="space-y-3">
-      {event.dressCode && (
-        <div
-          className="p-4 rounded-2xl border text-center"
-          style={{ backgroundColor: 'white', borderColor: 'var(--w-cream-border)' }}
-        >
-          <p className="text-[9px] uppercase tracking-[0.25em] mb-1" style={{ color: 'var(--w-text-light)' }}>
-            Código de vestimenta
-          </p>
-          <p className="text-sm font-semibold" style={{ color: 'var(--w-text)' }}>
-            {event.dressCode}
-          </p>
-          {event.dressCodeNotes && (
-            <p className="text-xs mt-1.5" style={{ color: 'var(--w-text-muted)' }}>
-              {event.dressCodeNotes}
-            </p>
+            </AnimatedSection>
           )}
-        </div>
-      )}
-      {event.eventNotes && (
-        <div
-          className="p-4 rounded-2xl border"
-          style={{ backgroundColor: 'white', borderColor: 'var(--w-cream-border)' }}
-        >
-          <p className="text-xs leading-relaxed text-center" style={{ color: 'var(--w-text-muted)' }}>
-            {event.eventNotes}
-          </p>
-        </div>
-      )}
-    </section>
-  )
-}
 
-const GIFT_LABELS: Record<string, { label: string; emoji: string }> = {
-  registry:      { label: 'Tienda',      emoji: '🏬' },
-  bank_transfer: { label: 'Transferencia', emoji: '🏦' },
-  honeymoon:     { label: 'Luna de miel', emoji: '✈️' },
-  other:         { label: 'Regalo',       emoji: '🎁' },
-}
+          <AnimatedSection><OrnamentDivider /></AnimatedSection>
 
-function GiftCard({ gift }: { gift: InvitationViewProps['gifts'][number] }) {
-  const meta = GIFT_LABELS[gift.type] ?? GIFT_LABELS.other
-  return (
-    <div
-      className="p-4 rounded-2xl border space-y-2"
-      style={{ backgroundColor: 'white', borderColor: 'var(--w-cream-border)' }}
-    >
-      <div className="flex items-center gap-2">
-        <span className="text-xl">{meta.emoji}</span>
-        <div>
-          <p className="text-sm font-semibold" style={{ color: 'var(--w-text)' }}>
-            {gift.storeName ?? gift.bankName ?? meta.label}
-          </p>
-          <p className="text-[9px] uppercase tracking-wide" style={{ color: 'var(--w-text-light)' }}>
-            {meta.label}
-          </p>
-        </div>
+          {/* GIFTS */}
+          {gifts.length > 0 && (
+            <AnimatedSection>
+              <div style={{ textAlign: 'center', padding: '4px 0' }}>
+                <p
+                  style={{
+                    fontFamily: 'var(--font-dancing)',
+                    fontSize: '1.5rem',
+                    color: 'var(--w-blue)',
+                    lineHeight: 1.3,
+                    marginBottom: 16,
+                  }}
+                >
+                  Tu presencia es nuestro mejor regalo,<br />pero si deseas añadir algo más:
+                </p>
+
+                {giftRegistries.length > 0 && (
+                  <div style={{ marginBottom: 16 }}>
+                    <p
+                      style={{
+                        fontSize: '0.75rem',
+                        color: 'var(--w-blue-dark)',
+                        marginBottom: 8,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        gap: 6,
+                      }}
+                    >
+                      <span>🎁</span> Mesa de regalos
+                    </p>
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: giftRegistries.length > 1 ? '1fr 1fr' : '1fr',
+                        gap: 8,
+                      }}
+                    >
+                      {giftRegistries.map(g => (
+                        <div key={g.id} style={{ textAlign: 'center', fontSize: '0.78rem' }}>
+                          <p style={{ fontWeight: 600, color: 'var(--w-text)' }}>{g.storeName}</p>
+                          {g.listNumber && (
+                            <p style={{ color: 'var(--w-text-muted)' }}>No. {g.listNumber}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {bankTransfers.length > 0 && (
+                  <div>
+                    <p
+                      style={{
+                        fontSize: '0.75rem',
+                        color: 'var(--w-blue-dark)',
+                        marginBottom: 8,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        gap: 6,
+                      }}
+                    >
+                      <span>💳</span> Efectivo o Transferencia
+                    </p>
+                    {bankTransfers.map(g => (
+                      <div key={g.id} style={{ textAlign: 'center', fontSize: '0.78rem', marginBottom: 6 }}>
+                        {g.accountHolder && (
+                          <p style={{ fontWeight: 500, color: 'var(--w-text)' }}>{g.accountHolder}</p>
+                        )}
+                        {g.bankName && (
+                          <p style={{ color: 'var(--w-text-muted)' }}>{g.bankName}</p>
+                        )}
+                        {g.accountNumber && (
+                          <p style={{ fontFamily: 'monospace', color: 'var(--w-text)', letterSpacing: '0.04em' }}>
+                            {g.accountNumber}
+                          </p>
+                        )}
+                        {g.clabe && (
+                          <p style={{ fontFamily: 'monospace', color: 'var(--w-text-muted)', fontSize: '0.7rem' }}>
+                            CLABE: {g.clabe}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </AnimatedSection>
+          )}
+
+          <AnimatedSection><OrnamentDivider /></AnimatedSection>
+
+          {/* RSVP */}
+          {invitation && !['present'].includes(invitation.status) && (
+            <AnimatedSection>
+              <RSVPSection
+                token={invitation.token}
+                familyName={invitation.familyName}
+                totalPasses={invitation.totalPasses}
+                currentStatus={invitation.status}
+                confirmedCount={invitation.confirmedCount}
+              />
+            </AnimatedSection>
+          )}
+
+          {/* SIGN-OFF */}
+          <AnimatedSection>
+            <div style={{ textAlign: 'center', padding: '16px 0 8px' }}>
+              <SimpleWave />
+              <p
+                style={{
+                  fontFamily: 'var(--font-dancing)',
+                  fontSize: '1.8rem',
+                  color: 'var(--w-blue)',
+                  marginTop: 12,
+                }}
+              >
+                Con amor {groomName} y Gilli:
+              </p>
+            </div>
+          </AnimatedSection>
+
+        </CornerOrnamentBox>
       </div>
-      <div className="space-y-0.5 text-xs" style={{ color: 'var(--w-text-muted)' }}>
-        {gift.listNumber    && <p>Lista <span className="font-semibold" style={{ color: 'var(--w-text)' }}>#{gift.listNumber}</span></p>}
-        {gift.accountHolder && <p>Titular <span className="font-medium" style={{ color: 'var(--w-text)' }}>{gift.accountHolder}</span></p>}
-        {gift.accountNumber && <p className="font-mono">{gift.accountNumber}</p>}
-        {gift.clabe         && <p>CLABE <span className="font-mono">{gift.clabe}</span></p>}
-        {gift.description   && <p className="italic">{gift.description}</p>}
-        {gift.url && (
-          <a href={gift.url} target="_blank" rel="noopener noreferrer"
-            className="block truncate hover:opacity-70 transition-opacity"
-            style={{ color: 'var(--w-blue)' }}>
-            {gift.url}
-          </a>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function SpotifySection({ couple }: { couple: InvitationViewProps['couple'] }) {
-  const url = couple?.songUrl
-  if (!url) return null
-
-  // Extract Spotify track/album/playlist ID from URL
-  // Handles: open.spotify.com/track/ID, open.spotify.com/intl-*/track/ID
-  const m = url.match(/spotify\.com(?:\/intl-[^/]+)?\/(\w+)\/([A-Za-z0-9]+)/)
-  if (!m) return null
-  const [, type, id] = m
-  const embedUrl = `https://open.spotify.com/embed/${type}/${id}?utm_source=generator&theme=0`
-
-  return (
-    <section className="space-y-3">
-      <SectionHeader>Nuestra Canción</SectionHeader>
-      {couple?.songTitle && (
-        <p className="text-center text-xs italic" style={{ color: 'var(--w-text-muted)' }}>
-          {couple.songTitle}
-        </p>
-      )}
-      <div className="rounded-2xl overflow-hidden border" style={{ borderColor: 'var(--w-cream-border)' }}>
-        <iframe
-          src={embedUrl}
-          width="100%"
-          height="152"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"
-          style={{ border: 'none', display: 'block' }}
-          title={couple?.songTitle ?? 'Nuestra canción'}
-        />
-      </div>
-    </section>
-  )
-}
-
-function GiftsSection({ gifts }: { gifts: InvitationViewProps['gifts'] }) {
-  if (gifts.length === 0) return null
-  return (
-    <section className="space-y-4">
-      <SectionHeader>Mesa de Regalos</SectionHeader>
-      <div
-        className="p-3 rounded-2xl border text-center"
-        style={{ backgroundColor: 'white', borderColor: 'var(--w-gold-light)' }}
-      >
-        <p className="text-xs italic leading-relaxed" style={{ color: 'var(--w-text-muted)' }}>
-          Tu presencia es nuestro mejor regalo, pero si deseas añadir algo más:
-        </p>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {gifts.map(g => <GiftCard key={g.id} gift={g} />)}
-      </div>
-    </section>
-  )
-}
-
-// ─── Main Component ────────────────────────────────────────────────────────────
-
-export default function InvitationView({
-  event,
-  couple,
-  venues,
-  itinerary,
-  gifts,
-  invitation,
-}: InvitationViewProps) {
-  // When guest is checked in, show the focused present-state view
-  if (invitation && invitation.status === 'present') {
-    return (
-      <PresentView
-        invitation={invitation}
-        event={event}
-        itinerary={itinerary}
-        couple={couple}
-      />
-    )
-  }
-
-  const weddingDate = event.date.toISOString()
-
-  return (
-    <div
-      className="max-w-lg mx-auto px-6 py-12 space-y-12"
-      style={{ color: 'var(--w-text)' }}
-    >
-      {/* Personalized header */}
-      {invitation && (
-        <AnimatedSection>
-          <div
-            className="text-center py-6 rounded-3xl border"
-            style={{ backgroundColor: 'white', borderColor: 'var(--w-cream-border)' }}
-          >
-            <p className="text-[10px] uppercase tracking-[0.3em] mb-2" style={{ color: 'var(--w-text-light)' }}>
-              Esta invitación es para
-            </p>
-            <p className="font-outfit text-2xl font-bold" style={{ color: 'var(--w-text)' }}>
-              {invitation.familyName}
-            </p>
-            <p className="text-xs mt-1" style={{ color: 'var(--w-text-muted)' }}>
-              {invitation.contactName} · {invitation.totalPasses} pase{invitation.totalPasses > 1 ? 's' : ''}
-            </p>
-          </div>
-        </AnimatedSection>
-      )}
-
-      <AnimatedSection delay={0.05}>
-        <HeroSection couple={couple} event={event} />
-      </AnimatedSection>
-
-      <AnimatedSection delay={0.1}>
-        <Countdown weddingDate={weddingDate} />
-      </AnimatedSection>
-
-      <AnimatedSection>
-        <QuoteSection couple={couple} />
-      </AnimatedSection>
-
-      <AnimatedSection>
-        <ParentsSection couple={couple} />
-      </AnimatedSection>
-
-      <AnimatedSection>
-        <InvitationTextSection couple={couple} />
-      </AnimatedSection>
-
-      <AnimatedSection>
-        <VenuesSection venues={venues} />
-      </AnimatedSection>
-
-      <AnimatedSection>
-        <ItinerarySection itinerary={itinerary} />
-      </AnimatedSection>
-
-      <AnimatedSection>
-        <NotesSection event={event} />
-      </AnimatedSection>
-
-      <AnimatedSection>
-        <SpotifySection couple={couple} />
-      </AnimatedSection>
-
-      <AnimatedSection>
-        <GiftsSection gifts={gifts} />
-      </AnimatedSection>
-
-      {/* QR — shown only when there's a personalized invitation */}
-      {invitation && invitation.status !== 'present' && (
-        <AnimatedSection>
-          <section className="space-y-3">
-            <SectionHeader>Tu Código QR</SectionHeader>
-            <InvitationQR token={invitation.token} />
-          </section>
-        </AnimatedSection>
-      )}
-
-      {/* RSVP */}
-      {invitation && !['present'].includes(invitation.status) && (
-        <AnimatedSection>
-          <RSVPSection
-            token={invitation.token}
-            familyName={invitation.familyName}
-            totalPasses={invitation.totalPasses}
-            currentStatus={invitation.status}
-            confirmedCount={invitation.confirmedCount}
-          />
-        </AnimatedSection>
-      )}
-
-
-      {/* Footer */}
-      <AnimatedSection>
-        <footer className="text-center pb-4 space-y-4">
-          <Divider />
-          <p
-            className="font-outfit text-xl font-semibold tracking-wide"
-            style={{ color: 'var(--w-gold)' }}
-          >
-            J &amp; G
-          </p>
-          <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--w-text-light)' }}>
-            Te esperamos con mucho amor · 06·06·2026
-          </p>
-          <Divider />
-        </footer>
-      </AnimatedSection>
     </div>
   )
 }

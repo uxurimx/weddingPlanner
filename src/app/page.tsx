@@ -15,18 +15,36 @@ function ComingSoon() {
       className="min-h-screen flex flex-col items-center justify-center px-6 py-20 text-center"
       style={{ backgroundColor: 'var(--w-cream)', color: 'var(--w-text)' }}
     >
-      <p className="text-[10px] uppercase tracking-[0.35em] mb-6" style={{ color: 'var(--w-text-muted)' }}>
+      <p
+        className="text-[10px] uppercase tracking-[0.35em] mb-8"
+        style={{ color: 'var(--w-text-muted)' }}
+      >
         Con mucho amor, los invitan a su boda
       </p>
-      <h1 className="font-outfit font-bold text-6xl mb-2" style={{ color: 'var(--w-text)' }}>
-        {siteConfig.groomName}
-      </h1>
-      <p className="font-outfit text-3xl my-1" style={{ color: 'var(--w-gold)' }}>&amp;</p>
-      <h1 className="font-outfit font-bold text-6xl mb-8" style={{ color: 'var(--w-text)' }}>
-        {siteConfig.brideName}
-      </h1>
+      <p
+        style={{
+          fontFamily: 'var(--font-script)',
+          fontSize: '4.5rem',
+          color: 'var(--w-blue)',
+          lineHeight: 1.15,
+        }}
+      >
+        {siteConfig.brideName} &amp; {siteConfig.groomName}
+      </p>
+      <div style={{ color: 'var(--w-blue-border)', margin: '20px 0' }}>
+        <svg viewBox="0 0 200 16" style={{ width: 200, height: 16 }} fill="none" stroke="currentColor" strokeLinecap="round">
+          <path d="M8,8 Q18,3 28,8 Q38,13 48,8 Q58,3 68,8" strokeWidth="1" />
+          <line x1="74" y1="8" x2="88" y2="8" strokeWidth="0.8" />
+          <path d="M92,2 L100,8 L92,14 L84,8 Z" strokeWidth="0.9" stroke="var(--w-blue)" fill="none" />
+          <line x1="112" y1="8" x2="126" y2="8" strokeWidth="0.8" />
+          <path d="M132,8 Q142,3 152,8 Q162,13 172,8 Q182,3 192,8" strokeWidth="1" />
+        </svg>
+      </div>
       <Countdown weddingDate={siteConfig.weddingDate} />
-      <p className="text-xs mt-10 uppercase tracking-[0.2em]" style={{ color: 'var(--w-text-muted)' }}>
+      <p
+        className="text-[10px] mt-10 uppercase tracking-[0.25em]"
+        style={{ color: 'var(--w-text-light)' }}
+      >
         Sábado · 6 de Junio · 2026 · Culiacán, Sinaloa
       </p>
     </div>

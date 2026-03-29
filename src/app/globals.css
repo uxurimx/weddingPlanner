@@ -29,16 +29,16 @@
 
 /* ─── Wedding palette (public invitation pages) ─── */
 :root {
-  --w-cream:        #FAF6EE;
-  --w-cream-dark:   #F0E9D8;
-  --w-cream-border: #E8DCC8;
-  --w-blue:         #6B9BC4;
-  --w-blue-dark:    #4A7BA7;
-  --w-blue-light:   #A8C8E0;
-  --w-blue-border:  #C5DFF0;
-  --w-text:         #2A3A4A;
-  --w-text-muted:   #7A8A9A;
-  --w-text-light:   #A0B0BF;
+  --w-cream:        #FAFAF8;
+  --w-cream-dark:   #F0EBE0;
+  --w-cream-border: #E2D9CA;
+  --w-blue:         #7EA8C9;
+  --w-blue-dark:    #4D7EA0;
+  --w-blue-light:   #B8D4E6;
+  --w-blue-border:  #CDE3F0;
+  --w-text:         #4A6A88;
+  --w-text-muted:   #7090A8;
+  --w-text-light:   #98B4C8;
   --w-gold:         #C4A55A;
   --w-gold-light:   #E8D5A0;
 }
@@ -46,8 +46,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans:   var(--font-inter);
-  --font-outfit: var(--font-outfit);
+  --font-sans:        var(--font-inter);
+  --font-outfit:      var(--font-outfit);
+  --font-dancing:     var(--font-dancing);
+  --font-script:      var(--font-great-vibes);
 }
 
 body {

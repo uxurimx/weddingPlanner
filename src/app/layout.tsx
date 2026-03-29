@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Inter, Outfit, Dancing_Script, Great_Vibes } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { siteConfig } from "@/config/site";
@@ -13,6 +13,18 @@ const inter = Inter({
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
+});
+
+const dancingScript = Dancing_Script({
+  variable: "--font-dancing",
+  subsets: ["latin"],
+  weight: ['400', '500', '600', '700'],
+});
+
+const greatVibes = Great_Vibes({
+  variable: "--font-great-vibes",
+  subsets: ["latin"],
+  weight: ['400'],
 });
 
 export const viewport: Viewport = {
@@ -44,7 +56,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="es" suppressHydrationWarning>
-        <body className={`${inter.variable} ${outfit.variable} antialiased font-sans`}>
+        <body className={`${inter.variable} ${outfit.variable} ${dancingScript.variable} ${greatVibes.variable} antialiased font-sans`}>
           <ThemeProvider>{children}</ThemeProvider>
         </body>
       </html>
