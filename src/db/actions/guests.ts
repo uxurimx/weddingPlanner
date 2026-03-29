@@ -260,6 +260,24 @@ export async function seedDefaultTables(): Promise<ActionState> {
   }
 }
 
+// ─── Bulk Delete ─────────────────────────────────────────────────────────────
+
+export async function bulkDeleteInvitations(
+  ids: string[],
+): Promise<{ deleted: number; error?: string }> {
+  try {
+    if (ids.length === 0) return { deleted: 0 }
+    for (const id of ids) {
+      await db.delete(invitations).where(eq(invitations.id, id))
+    }
+    revalidatePath('/guests')
+    return { deleted: ids.length }
+  } catch (e) {
+    console.error(e)
+    return { deleted: 0, error: 'Error al eliminar invitaciones.' }
+  }
+}
+
 // ─── Bulk Import ──────────────────────────────────────────────────────────────
 
 export type ImportGuest = {

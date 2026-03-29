@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import {
   deleteInvitation,
+  bulkDeleteInvitations,
   markInvitationSent,
   type InvitationRow,
   type TableWithOccupancy,
@@ -129,6 +130,17 @@ export default function InvitationsTab({
     startTransition(async () => { await markInvitationSent(id); router.refresh() })
   }
 
+  function handleBulkDelete() {
+    const names = selectedRows.slice(0, 3).map(r => r.familyName).join(', ')
+    const suffix = selectedRows.length > 3 ? ` y ${selectedRows.length - 3} más` : ''
+    if (!confirm(`¿Eliminar ${selected.size} invitaciones?\n\n${names}${suffix}`)) return
+    startTransition(async () => {
+      await bulkDeleteInvitations([...selected])
+      setSelected(new Set())
+      router.refresh()
+    })
+  }
+
   return (
     <div className="space-y-4">
       {/* Stats bar */}
@@ -224,9 +236,8 @@ export default function InvitationsTab({
 
       {showImport && <ImportModal onClose={() => setShowImport(false)} />}
 
-      {/* Bulk selection bar */}
+      {/* Bulk selection shortcuts */}
       <div className="flex flex-wrap items-center gap-2">
-        {/* Select all visible / all created shortcuts */}
         <label className="flex items-center gap-2 cursor-pointer select-none text-sm" style={{ color: 'var(--fg-muted)' }}>
           <input
             type="checkbox"
@@ -253,35 +264,6 @@ export default function InvitationsTab({
           </button>
         )}
       </div>
-
-      {/* Floating action bar — appears when items are selected */}
-      {selected.size > 0 && (
-        <div
-          className="flex flex-wrap items-center gap-2 p-3 rounded-2xl border"
-          style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}
-        >
-          <span className="text-sm font-semibold flex-1" style={{ color: 'var(--fg)' }}>
-            {selected.size} seleccionado{selected.size > 1 ? 's' : ''}
-          </span>
-          {/* Bulk WhatsApp send */}
-          <button
-            onClick={() => setShowSend(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-white bg-emerald-500 hover:bg-emerald-600 transition-colors"
-          >
-            <Send className="w-3.5 h-3.5" /> Enviar por WhatsApp
-          </button>
-          {/* Merge / create family */}
-          {selected.size >= 2 && (
-            <button
-              onClick={() => setShowMerge(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-colors hover:border-indigo-500/60 hover:text-indigo-500"
-              style={{ borderColor: 'var(--border)', color: 'var(--fg-muted)' }}
-            >
-              <Merge className="w-3.5 h-3.5" /> Crear familia
-            </button>
-          )}
-        </div>
-      )}
 
       {/* Add form / button */}
       {editing === 'new' ? (
@@ -436,6 +418,66 @@ export default function InvitationsTab({
           invitations={selectedRows}
           onClose={() => { setShowMerge(false); setSelected(new Set()) }}
         />
+      )}
+
+      {/* ── Floating action bar ── */}
+      {selected.size > 0 && (
+        <div className="fixed bottom-6 left-4 right-4 md:left-72 md:right-6 z-40 pointer-events-none">
+          <div
+            className="pointer-events-auto mx-auto w-fit flex items-center gap-2 px-3 py-2.5 rounded-2xl border shadow-2xl backdrop-blur-md"
+            style={{
+              backgroundColor: 'color-mix(in srgb, var(--bg) 90%, transparent)',
+              borderColor: 'var(--border)',
+            }}
+          >
+            <span className="text-sm font-semibold pr-1 pl-1" style={{ color: 'var(--fg)' }}>
+              {selected.size} seleccionado{selected.size > 1 ? 's' : ''}
+            </span>
+
+            <div className="w-px h-4 opacity-20" style={{ backgroundColor: 'var(--fg)' }} />
+
+            {/* Send */}
+            <button
+              onClick={() => setShowSend(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-white bg-emerald-500 hover:bg-emerald-600 transition-colors"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Enviar WhatsApp</span>
+              <span className="sm:hidden">WA</span>
+            </button>
+
+            {/* Merge */}
+            {selected.size >= 2 && (
+              <button
+                onClick={() => setShowMerge(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-colors hover:border-indigo-500/60 hover:text-indigo-500"
+                style={{ borderColor: 'var(--border)', color: 'var(--fg-muted)' }}
+              >
+                <Merge className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Crear familia</span>
+              </button>
+            )}
+
+            {/* Delete */}
+            <button
+              onClick={handleBulkDelete}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border border-red-500/30 text-red-500 hover:bg-red-500/10 transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Eliminar</span>
+            </button>
+
+            <div className="w-px h-4 opacity-20" style={{ backgroundColor: 'var(--fg)' }} />
+
+            {/* Deselect */}
+            <button
+              onClick={() => setSelected(new Set())}
+              className="p-1.5 rounded-lg transition-colors hover:bg-white/10"
+            >
+              <X className="w-3.5 h-3.5" style={{ color: 'var(--fg-muted)' }} />
+            </button>
+          </div>
+        </div>
       )}
     </div>
   )
