@@ -11,8 +11,11 @@ const input = "w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none t
 const inputStyle = { backgroundColor: "var(--bg)", borderColor: "var(--border)", color: "var(--fg)" }
 const label = "block text-xs font-semibold uppercase tracking-wide mb-1.5"
 
-function getEmbedUrl(url: string): { type: 'youtube' | 'spotify' | null; embedUrl: string | null } {
+function getEmbedUrl(url: string): { type: 'youtube' | 'spotify' | 'local' | null; embedUrl: string | null } {
   if (!url) return { type: null, embedUrl: null }
+
+  // Local file
+  if (url.startsWith('/')) return { type: 'local', embedUrl: url }
 
   // YouTube
   const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
@@ -51,16 +54,16 @@ export default function SongTab({ couple }: { couple: CoupleData }) {
         </div>
 
         <div>
-          <label className={label} style={{ color: "var(--fg-muted)" }}>URL de YouTube o Spotify</label>
+          <label className={label} style={{ color: "var(--fg-muted)" }}>URL o ruta de la canción</label>
           <input
             name="songUrl"
             defaultValue={couple?.songUrl ?? ''}
-            placeholder="https://youtu.be/... o https://open.spotify.com/track/..."
+            placeholder="/song.mp3 · https://youtu.be/... · https://open.spotify.com/track/..."
             className={input} style={inputStyle}
             onChange={e => setPreviewUrl(e.target.value)}
           />
           <p className="mt-1.5 text-xs" style={{ color: "var(--fg-muted)" }}>
-            Se mostrará como player en la invitación. Compatible con YouTube y Spotify.
+            Archivo local: <code className="font-mono">/song.mp3</code> (colócalo en <code className="font-mono">public/</code>). También acepta YouTube o Spotify.
           </p>
         </div>
 
@@ -85,6 +88,9 @@ export default function SongTab({ couple }: { couple: CoupleData }) {
 
         {embedUrl ? (
           <div className="rounded-xl overflow-hidden">
+            {embedType === 'local' && (
+              <audio src={embedUrl} controls className="w-full" />
+            )}
             {embedType === 'youtube' && (
               <iframe
                 src={embedUrl}

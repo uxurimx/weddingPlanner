@@ -5,6 +5,7 @@ import PresentView from './PresentView'
 import RSVPSection from './RSVPSection'
 import GuestCard from './GuestCard'
 import Countdown from './Countdown'
+import MusicPlayer from './MusicPlayer'
 
 type Props = PublicData & { invitation?: typeof invitations.$inferSelect | null }
 
@@ -261,8 +262,11 @@ export default function InvitationView({ event, couple, venues, itinerary, gifts
   const giftRegistries = gifts.filter(g => g.type === 'registry')
   const bankTransfers  = gifts.filter(g => g.type === 'bank_transfer')
 
+  const localSong = couple?.songUrl?.startsWith('/') ? couple.songUrl : null
+
   return (
     <div style={{ backgroundColor: 'var(--w-cream)', minHeight: '100vh' }}>
+      {localSong && <MusicPlayer src={localSong} title={couple?.songTitle} />}
       <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px 20px 40px' }}>
 
         <CornerOrnamentBox>
