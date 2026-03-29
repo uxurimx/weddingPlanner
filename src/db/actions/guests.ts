@@ -309,3 +309,49 @@ export async function bulkImportInvitations(
     return { imported: 0, error: 'Error al importar invitaciones.' }
   }
 }
+
+// ─── Merge (create family) ────────────────────────────────────────────────────
+
+export async function mergeInvitations(
+  ids: string[],
+  familyName: string,
+  contactName: string,
+  contactPhone: string | null,
+  totalPasses: number,
+): Promise<ActionState> {
+  try {
+    if (ids.length < 2) return { error: 'Se necesitan al menos 2 invitados para unificar.' }
+
+    const eventId = await getFirstEventId()
+    if (!eventId) return { error: 'No se encontró el evento.' }
+
+    const existing = await db
+      .select({ invitationNumber: invitations.invitationNumber })
+      .from(invitations)
+      .where(eq(invitations.eventId, eventId))
+
+    const maxNum = existing.reduce((max, r) => Math.max(max, r.invitationNumber ?? 0), 0)
+
+    // Create merged invitation
+    await db.insert(invitations).values({
+      eventId,
+      familyName,
+      contactName,
+      contactPhone: contactPhone || null,
+      totalPasses: Math.max(1, totalPasses),
+      invitationNumber: maxNum + 1,
+      status: 'created',
+    })
+
+    // Delete individual invitations
+    for (const id of ids) {
+      await db.delete(invitations).where(eq(invitations.id, id))
+    }
+
+    revalidatePath('/guests')
+    return { success: true, message: `${ids.length} invitados unificados en "${familyName}".` }
+  } catch (e) {
+    console.error(e)
+    return { error: 'Error al unificar invitaciones.' }
+  }
+}
