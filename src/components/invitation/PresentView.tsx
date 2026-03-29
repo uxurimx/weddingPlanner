@@ -6,6 +6,7 @@ import type { PublicData } from '@/db/actions/public'
 import type { invitations } from '@/db/schema'
 import EventPhotoUploader from './EventPhotoUploader'
 import VideoMessageUploader from './VideoMessageUploader'
+import ItineraryIcon from './ItineraryIcon'
 
 type Props = {
   invitation: typeof invitations.$inferSelect
@@ -155,10 +156,10 @@ export default function PresentView({ invitation, event, itinerary, couple }: Pr
               {pastItems.map(item => (
                 <div key={item.id} className="flex gap-4 py-3 relative opacity-40">
                   <div
-                    className="w-[60px] h-8 rounded-full flex items-center justify-center flex-shrink-0 text-sm z-10 border"
-                    style={{ backgroundColor: 'var(--w-cream-dark)', borderColor: 'var(--w-cream-border)' }}
+                    className="w-[60px] h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 border"
+                    style={{ backgroundColor: 'var(--w-cream-dark)', borderColor: 'var(--w-cream-border)', color: 'var(--w-text-muted)' }}
                   >
-                    {item.icon || '✓'}
+                    <ItineraryIcon icon={item.icon} size={20} />
                   </div>
                   <div className="flex-1 min-w-0 pt-0.5">
                     <div className="flex items-baseline gap-2 flex-wrap">
@@ -184,13 +185,14 @@ export default function PresentView({ invitation, event, itinerary, couple }: Pr
               {upcomingItems.map((item, i) => (
                 <div key={item.id} className="flex gap-4 py-3 relative">
                   <div
-                    className="w-[60px] h-8 rounded-full flex items-center justify-center flex-shrink-0 text-sm z-10 border"
+                    className="w-[60px] h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 border"
                     style={{
                       backgroundColor: 'var(--w-cream-dark)',
                       borderColor: i === 0 ? 'var(--w-gold)' : 'var(--w-cream-border)',
+                      color: i === 0 ? 'var(--w-gold)' : 'var(--w-text-muted)',
                     }}
                   >
-                    {item.icon || '📌'}
+                    <ItineraryIcon icon={item.icon} size={20} />
                   </div>
                   <div className="flex-1 min-w-0 pt-0.5">
                     <div className="flex items-baseline gap-2 flex-wrap">

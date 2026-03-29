@@ -6,6 +6,7 @@ import RSVPSection from './RSVPSection'
 import GuestCard from './GuestCard'
 import Countdown from './Countdown'
 import MusicPlayer from './MusicPlayer'
+import ItineraryIcon from './ItineraryIcon'
 
 type Props = PublicData & { invitation?: typeof invitations.$inferSelect | null }
 
@@ -562,11 +563,11 @@ export default function InvitationView({ event, couple, venues, itinerary, gifts
                           alignItems: 'center',
                           justifyContent: 'center',
                           flexShrink: 0,
-                          fontSize: '1rem',
+                          color: 'var(--w-blue)',
                           zIndex: 1,
                         }}
                       >
-                        {item.icon || '📌'}
+                        <ItineraryIcon icon={item.icon} size={22} />
                       </div>
                       <div style={{ flex: 1, paddingTop: 4 }}>
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
