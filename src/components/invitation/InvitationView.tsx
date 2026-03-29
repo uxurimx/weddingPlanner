@@ -523,6 +523,75 @@ export default function InvitationView({ event, couple, venues, itinerary, gifts
 
           <AnimatedSection><OrnamentDivider /></AnimatedSection>
 
+          {/* ITINERARY */}
+          {itinerary.filter(i => i.isVisible).length > 0 && (
+            <AnimatedSection>
+              <div style={{ padding: '4px 0' }}>
+                <p
+                  style={{
+                    fontFamily: 'var(--font-dancing)',
+                    fontSize: '1.7rem',
+                    color: 'var(--w-blue)',
+                    textAlign: 'center',
+                    marginBottom: 16,
+                  }}
+                >
+                  Programa del día
+                </p>
+                <div style={{ position: 'relative', paddingLeft: 8 }}>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: 34,
+                      top: 12,
+                      bottom: 12,
+                      width: 1,
+                      backgroundColor: 'var(--w-blue-border)',
+                    }}
+                  />
+                  {itinerary.filter(i => i.isVisible).map(item => (
+                    <div key={item.id} style={{ display: 'flex', gap: 12, paddingBottom: 12, position: 'relative' }}>
+                      <div
+                        style={{
+                          width: 52,
+                          height: 32,
+                          borderRadius: 999,
+                          border: '1px solid var(--w-blue-border)',
+                          backgroundColor: 'white',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                          fontSize: '1rem',
+                          zIndex: 1,
+                        }}
+                      >
+                        {item.icon || '📌'}
+                      </div>
+                      <div style={{ flex: 1, paddingTop: 4 }}>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--w-blue)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                            {item.time}
+                          </span>
+                          <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--w-text)' }}>
+                            {item.title}
+                          </span>
+                        </div>
+                        {item.description && (
+                          <p style={{ fontSize: '0.72rem', color: 'var(--w-text-muted)', marginTop: 2 }}>
+                            {item.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </AnimatedSection>
+          )}
+
+          <AnimatedSection><OrnamentDivider /></AnimatedSection>
+
           {/* GIFTS */}
           {gifts.length > 0 && (
             <AnimatedSection>
@@ -562,12 +631,35 @@ export default function InvitationView({ event, couple, venues, itinerary, gifts
                       }}
                     >
                       {giftRegistries.map(g => (
-                        <div key={g.id} style={{ textAlign: 'center', fontSize: '0.78rem' }}>
-                          <p style={{ fontWeight: 600, color: 'var(--w-text)' }}>{g.storeName}</p>
-                          {g.listNumber && (
-                            <p style={{ color: 'var(--w-text-muted)' }}>No. {g.listNumber}</p>
-                          )}
-                        </div>
+                        g.url ? (
+                          <a
+                            key={g.id}
+                            href={g.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              textAlign: 'center',
+                              fontSize: '0.78rem',
+                              display: 'block',
+                              padding: '8px',
+                              border: '1px solid var(--w-blue-border)',
+                              borderRadius: 8,
+                              textDecoration: 'none',
+                            }}
+                          >
+                            <p style={{ fontWeight: 600, color: 'var(--w-blue)' }}>{g.storeName}</p>
+                            {g.listNumber && (
+                              <p style={{ color: 'var(--w-text-muted)' }}>No. {g.listNumber}</p>
+                            )}
+                          </a>
+                        ) : (
+                          <div key={g.id} style={{ textAlign: 'center', fontSize: '0.78rem' }}>
+                            <p style={{ fontWeight: 600, color: 'var(--w-text)' }}>{g.storeName}</p>
+                            {g.listNumber && (
+                              <p style={{ color: 'var(--w-text-muted)' }}>No. {g.listNumber}</p>
+                            )}
+                          </div>
+                        )
                       ))}
                     </div>
                   </div>
