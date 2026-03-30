@@ -358,7 +358,7 @@ export default function InvitationsTab({
               </div>
 
               {/* Actions (hover) */}
-              <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+              <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity flex-shrink-0">
                 <button
                   type="button"
                   title="Ver QR"

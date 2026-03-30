@@ -176,7 +176,7 @@ export default function ItineraryManager({ items }: { items: Item[] }) {
               </div>
 
               {/* Actions (show on hover) */}
-              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity flex-shrink-0">
                 <button type="button" title={item.isVisible ? 'Ocultar' : 'Mostrar'}
                   onClick={() => mutate(() => toggleItineraryItemVisibility(item.id, item.isVisible))}
                   className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[var(--surface-2)] transition-colors">

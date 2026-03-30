@@ -147,7 +147,7 @@ export default function MediaGallery({
               </div>
 
               {/* Hover actions */}
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity flex items-center justify-center gap-2">
                 <div className="p-1.5 rounded-lg bg-white/20">
                   <Maximize2 className="w-4 h-4 text-white" />
                 </div>
@@ -165,7 +165,7 @@ export default function MediaGallery({
 
               {/* Guest name tooltip */}
               {item.familyName && (
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-1.5 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity">
                   <p className="text-[9px] text-white truncate">{item.familyName}</p>
                 </div>
               )}

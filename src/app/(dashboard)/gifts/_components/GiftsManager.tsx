@@ -172,7 +172,7 @@ function GiftCard({ gift, onEdit, onDelete }: { gift: Gift; onEdit: () => void; 
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity">
           <button type="button" onClick={onEdit}
             className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-indigo-500/10 transition-colors">
             <Pencil className="w-3.5 h-3.5 text-indigo-500" />
