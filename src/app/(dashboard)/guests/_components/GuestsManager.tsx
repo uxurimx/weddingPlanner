@@ -79,7 +79,7 @@ export default function GuestsManager({
         <InvitationsTab invitations={invitations} tables={tables} />
       )}
       {activeTab === 'tables' && (
-        <TablesTab tables={tables} />
+        <TablesTab tables={tables} invitations={invitations} />
       )}
     </div>
   )

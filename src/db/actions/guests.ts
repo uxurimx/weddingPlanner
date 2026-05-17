@@ -1,11 +1,18 @@
 'use server'
 
 import { db } from '@/db'
-import { events, invitations, tablesSeating } from '@/db/schema'
-import { eq, asc, desc } from 'drizzle-orm'
+import { events, invitations, invitationGuests, tablesSeating } from '@/db/schema'
+import { eq, asc, desc, and, ne, inArray } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 
 export type ActionState = { success?: boolean; error?: string; message?: string } | null
+
+export type GuestMember = {
+  id: string
+  name: string
+  ageGroup: string
+  isConfirmed: boolean
+}
 
 export type InvitationRow = {
   id: string
@@ -21,12 +28,16 @@ export type InvitationRow = {
   status: 'created' | 'sent' | 'viewed' | 'confirmed' | 'cancelled' | 'present'
   adminNotes: string | null
   dietaryNotes: string | null
+  confirmationMessage: string | null
   sentAt: Date | null
+  viewedAt: Date | null
   confirmedAt: Date | null
+  cancelledAt: Date | null
   checkedInAt: Date | null
   createdAt: Date | null
   tableName: string | null
   tableNumber: number | null
+  members: GuestMember[]
 }
 
 export type TableWithOccupancy = typeof tablesSeating.$inferSelect & { occupancy: number }
@@ -62,8 +73,11 @@ export async function getInvitationsData(): Promise<{
       status: invitations.status,
       adminNotes: invitations.adminNotes,
       dietaryNotes: invitations.dietaryNotes,
+      confirmationMessage: invitations.confirmationMessage,
       sentAt: invitations.sentAt,
+      viewedAt: invitations.viewedAt,
       confirmedAt: invitations.confirmedAt,
+      cancelledAt: invitations.cancelledAt,
       checkedInAt: invitations.checkedInAt,
       createdAt: invitations.createdAt,
       tableName: tablesSeating.name,
@@ -73,6 +87,25 @@ export async function getInvitationsData(): Promise<{
     .leftJoin(tablesSeating, eq(invitations.tableId, tablesSeating.id))
     .where(eq(invitations.eventId, eventId))
     .orderBy(asc(invitations.invitationNumber))
+
+  // Fetch all family members in one query
+  const membersByInvId: Record<string, GuestMember[]> = {}
+  if (rows.length > 0) {
+    const allMembers = await db
+      .select()
+      .from(invitationGuests)
+      .where(inArray(invitationGuests.invitationId, rows.map(r => r.id)))
+      .orderBy(asc(invitationGuests.createdAt))
+
+    for (const m of allMembers) {
+      ;(membersByInvId[m.invitationId] ??= []).push({
+        id: m.id,
+        name: m.name,
+        ageGroup: m.ageGroup,
+        isConfirmed: m.isConfirmed,
+      })
+    }
+  }
 
   const tableRows = await db
     .select()
@@ -87,7 +120,12 @@ export async function getInvitationsData(): Promise<{
 
   const tables = tableRows.map(t => ({ ...t, occupancy: occupancy[t.id] ?? 0 }))
 
-  return { invitations: rows as InvitationRow[], tables }
+  const invRows = rows.map(r => ({
+    ...r,
+    members: membersByInvId[r.id] ?? [],
+  })) as InvitationRow[]
+
+  return { invitations: invRows, tables }
 }
 
 // ─── Invitations CRUD ─────────────────────────────────────────────────────────
@@ -177,6 +215,48 @@ export async function markInvitationSent(id: string): Promise<ActionState> {
   }
 }
 
+// ─── Guest Members CRUD ───────────────────────────────────────────────────────
+
+export async function addGuestMember(
+  invitationId: string,
+  name: string,
+  ageGroup: 'adult' | 'child' | 'baby' = 'adult',
+): Promise<ActionState> {
+  try {
+    if (!name.trim()) return { error: 'El nombre es requerido.' }
+    await db.insert(invitationGuests).values({ invitationId, name: name.trim(), ageGroup })
+    revalidatePath('/guests')
+    return { success: true }
+  } catch (e) {
+    console.error(e)
+    return { error: 'Error al agregar integrante.' }
+  }
+}
+
+export async function removeGuestMember(id: string): Promise<ActionState> {
+  try {
+    await db.delete(invitationGuests).where(eq(invitationGuests.id, id))
+    revalidatePath('/guests')
+    return { success: true }
+  } catch (e) {
+    console.error(e)
+    return { error: 'Error al eliminar integrante.' }
+  }
+}
+
+export async function toggleMemberConfirmed(id: string, current: boolean): Promise<ActionState> {
+  try {
+    await db.update(invitationGuests)
+      .set({ isConfirmed: !current })
+      .where(eq(invitationGuests.id, id))
+    revalidatePath('/guests')
+    return { success: true }
+  } catch (e) {
+    console.error(e)
+    return { error: 'Error al actualizar integrante.' }
+  }
+}
+
 // ─── Tables CRUD ──────────────────────────────────────────────────────────────
 
 const VALID_CATS = ['vip', 'familia', 'amigos', 'trabajo', 'otro'] as const
@@ -196,6 +276,19 @@ export async function upsertTable(prev: ActionState, formData: FormData): Promis
       ? (catRaw as TableCat)
       : 'amigos'
     const notes = (formData.get('notes') as string) || null
+
+    // Validate unique number per event
+    const [conflict] = await db
+      .select({ id: tablesSeating.id })
+      .from(tablesSeating)
+      .where(
+        id
+          ? and(eq(tablesSeating.eventId, eventId), eq(tablesSeating.number, number), ne(tablesSeating.id, id))
+          : and(eq(tablesSeating.eventId, eventId), eq(tablesSeating.number, number)),
+      )
+      .limit(1)
+
+    if (conflict) return { error: `Ya existe una mesa con el número ${number}.` }
 
     const data = { number, name, capacity, category, notes, updatedAt: new Date() }
 
@@ -228,6 +321,17 @@ export async function deleteTable(id: string): Promise<ActionState> {
   } catch (e) {
     console.error(e)
     return { error: 'Error al eliminar.' }
+  }
+}
+
+export async function unassignInvitationFromTable(id: string): Promise<ActionState> {
+  try {
+    await db.update(invitations).set({ tableId: null, updatedAt: new Date() }).where(eq(invitations.id, id))
+    revalidatePath('/guests')
+    return { success: true }
+  } catch (e) {
+    console.error(e)
+    return { error: 'Error al quitar de la mesa.' }
   }
 }
 
@@ -293,7 +397,6 @@ export async function bulkImportInvitations(
     const eventId = await getFirstEventId()
     if (!eventId) return { imported: 0, error: 'No se encontró el evento.' }
 
-    // Determine next invitationNumber
     const existing = await db
       .select({ invitationNumber: invitations.invitationNumber })
       .from(invitations)
@@ -315,7 +418,6 @@ export async function bulkImportInvitations(
 
     if (rows.length === 0) return { imported: 0, error: 'No hay filas válidas para importar.' }
 
-    // Insert in batches of 50
     for (let i = 0; i < rows.length; i += 50) {
       await db.insert(invitations).values(rows.slice(i, i + 50))
     }
@@ -343,6 +445,12 @@ export async function mergeInvitations(
     const eventId = await getFirstEventId()
     if (!eventId) return { error: 'No se encontró el evento.' }
 
+    // Fetch source invitations to preserve names before deletion
+    const sourceInvs = await db
+      .select({ contactName: invitations.contactName })
+      .from(invitations)
+      .where(inArray(invitations.id, ids))
+
     const existing = await db
       .select({ invitationNumber: invitations.invitationNumber })
       .from(invitations)
@@ -350,16 +458,31 @@ export async function mergeInvitations(
 
     const maxNum = existing.reduce((max, r) => Math.max(max, r.invitationNumber ?? 0), 0)
 
-    // Create merged invitation
-    await db.insert(invitations).values({
-      eventId,
-      familyName,
-      contactName,
-      contactPhone: contactPhone || null,
-      totalPasses: Math.max(1, totalPasses),
-      invitationNumber: maxNum + 1,
-      status: 'created',
-    })
+    // Create merged invitation, get its ID
+    const [newInv] = await db
+      .insert(invitations)
+      .values({
+        eventId,
+        familyName,
+        contactName,
+        contactPhone: contactPhone || null,
+        totalPasses: Math.max(1, totalPasses),
+        invitationNumber: maxNum + 1,
+        status: 'created',
+      })
+      .returning({ id: invitations.id })
+
+    // Preserve each original person as a family member
+    if (sourceInvs.length > 0) {
+      await db.insert(invitationGuests).values(
+        sourceInvs.map(s => ({
+          invitationId: newInv.id,
+          name: s.contactName,
+          ageGroup: 'adult' as const,
+          isConfirmed: false,
+        })),
+      )
+    }
 
     // Delete individual invitations
     for (const id of ids) {

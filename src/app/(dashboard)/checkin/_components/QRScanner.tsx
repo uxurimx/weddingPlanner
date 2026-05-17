@@ -1,105 +1,78 @@
 'use client'
 
 import { useRef, useEffect, useState, useCallback } from 'react'
-import { Camera, CameraOff, Scan } from 'lucide-react'
-
-interface BarcodeDetectorAPI {
-  detect(source: HTMLVideoElement): Promise<Array<{ rawValue: string }>>
-}
-
-declare global {
-  interface Window {
-    BarcodeDetector?: new (opts: { formats: string[] }) => BarcodeDetectorAPI
-  }
-}
+import { Camera, Scan } from 'lucide-react'
+import jsQR from 'jsqr'
 
 type ScannerState = 'idle' | 'starting' | 'scanning' | 'error'
 
 function extractToken(raw: string): string | null {
-  // Matches /i/{uuid} or /qr/{uuid}
   const m = raw.match(/\/[iq]r?\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i)
     ?? raw.match(/\/i\/([0-9a-f-]{36})/i)
   return m ? m[1] : null
 }
 
 export default function QRScanner({ onToken }: { onToken: (token: string) => void }) {
-  const videoRef   = useRef<HTMLVideoElement>(null)
-  const streamRef  = useRef<MediaStream | null>(null)
-  const timerRef   = useRef<ReturnType<typeof setInterval> | null>(null)
+  const videoRef     = useRef<HTMLVideoElement>(null)
+  const canvasRef    = useRef<HTMLCanvasElement>(null)
+  const streamRef    = useRef<MediaStream | null>(null)
+  const timerRef     = useRef<ReturnType<typeof setInterval> | null>(null)
+  const lastTokenRef = useRef<string | null>(null)
   const [state, setState] = useState<ScannerState>('idle')
-  const [supported, setSupported] = useState<boolean | null>(null)
-  const [lastToken, setLastToken] = useState<string | null>(null)
-
-  useEffect(() => {
-    setSupported(typeof window !== 'undefined' && 'BarcodeDetector' in window)
-    return () => stopScanner()
-  }, [])
 
   const stopScanner = useCallback(() => {
-    if (timerRef.current) clearInterval(timerRef.current)
+    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null }
     streamRef.current?.getTracks().forEach(t => t.stop())
     streamRef.current = null
+    lastTokenRef.current = null
     setState('idle')
-    setLastToken(null)
   }, [])
 
+  useEffect(() => () => stopScanner(), [stopScanner])
+
   const startScanner = useCallback(async () => {
-    if (!window.BarcodeDetector || !videoRef.current) return
+    const video  = videoRef.current
+    const canvas = canvasRef.current
+    if (!video || !canvas) return
+
     setState('starting')
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
       })
       streamRef.current = stream
-      const video = videoRef.current
       video.srcObject = stream
       await video.play()
-
-      const detector = new window.BarcodeDetector({ formats: ['qr_code'] })
       setState('scanning')
 
-      timerRef.current = setInterval(async () => {
-        if (!video || video.readyState < 2) return
-        try {
-          const barcodes = await detector.detect(video)
-          for (const bc of barcodes) {
-            const token = extractToken(bc.rawValue)
-            if (token && token !== lastToken) {
-              setLastToken(token)
-              stopScanner()
-              onToken(token)
-              return
-            }
+      const ctx = canvas.getContext('2d', { willReadFrequently: true })!
+
+      timerRef.current = setInterval(() => {
+        if (video.readyState < 2) return
+        canvas.width  = video.videoWidth
+        canvas.height = video.videoHeight
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+          inversionAttempts: 'dontInvert',
+        })
+        if (code) {
+          const token = extractToken(code.data)
+          if (token && token !== lastTokenRef.current) {
+            lastTokenRef.current = token
+            stopScanner()
+            onToken(token)
           }
-        } catch {
-          // ignore decode errors
         }
-      }, 300)
+      }, 250)
     } catch {
       setState('error')
     }
-  }, [lastToken, onToken, stopScanner])
-
-  if (supported === false) {
-    return (
-      <div
-        className="flex flex-col items-center gap-3 p-6 rounded-2xl border border-dashed text-center"
-        style={{ borderColor: 'var(--border)', color: 'var(--fg-muted)' }}
-      >
-        <CameraOff className="w-8 h-8 opacity-40" />
-        <p className="text-sm font-medium" style={{ color: 'var(--fg)' }}>
-          Escáner no disponible en este navegador
-        </p>
-        <p className="text-xs">
-          Usa Chrome en Android / Edge en escritorio, o busca manualmente al invitado abajo.
-        </p>
-      </div>
-    )
-  }
+  }, [onToken, stopScanner])
 
   return (
     <div className="space-y-3">
-      {state === 'idle' || state === 'error' ? (
+      {(state === 'idle' || state === 'error') ? (
         <button
           onClick={startScanner}
           className="w-full py-10 rounded-2xl border-2 border-dashed flex flex-col items-center gap-3 transition-all hover:border-indigo-500/50 active:scale-[0.99]"
@@ -112,44 +85,43 @@ export default function QRScanner({ onToken }: { onToken: (token: string) => voi
             <p className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>
               {state === 'error' ? 'Reintentar escáner' : 'Activar escáner QR'}
             </p>
+            <p className="text-xs mt-1" style={{ color: 'var(--fg-muted)' }}>
+              Funciona en Chrome, Safari y Firefox
+            </p>
             {state === 'error' && (
-              <p className="text-xs text-red-500 mt-1">No se pudo acceder a la cámara</p>
+              <p className="text-xs text-red-500 mt-1">No se pudo acceder a la cámara. Verifica los permisos.</p>
             )}
           </div>
         </button>
       ) : (
         <div className="relative rounded-2xl overflow-hidden border" style={{ borderColor: 'var(--border)' }}>
-          <video
-            ref={videoRef}
-            className="w-full aspect-video object-cover"
-            playsInline
-            muted
-          />
-          {/* Scan overlay */}
+          <video ref={videoRef} className="w-full aspect-video object-cover" playsInline muted />
+          {/* Viewfinder overlay */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-48 h-48 relative">
-              <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-indigo-400 rounded-tl-lg" />
-              <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-indigo-400 rounded-tr-lg" />
-              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-indigo-400 rounded-bl-lg" />
-              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-indigo-400 rounded-br-lg" />
+            <div className="w-52 h-52 relative">
+              <div className="absolute top-0 left-0 w-8 h-8 border-t-[3px] border-l-[3px] border-indigo-400 rounded-tl-lg" />
+              <div className="absolute top-0 right-0 w-8 h-8 border-t-[3px] border-r-[3px] border-indigo-400 rounded-tr-lg" />
+              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-[3px] border-l-[3px] border-indigo-400 rounded-bl-lg" />
+              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-[3px] border-r-[3px] border-indigo-400 rounded-br-lg" />
               <Scan className="absolute inset-0 m-auto w-8 h-8 text-indigo-400 opacity-60 animate-pulse" />
             </div>
           </div>
-          {/* Stop button */}
           <button
             onClick={stopScanner}
-            className="absolute top-3 right-3 px-3 py-1.5 rounded-xl text-xs font-medium backdrop-blur-sm transition-colors"
-            style={{ backgroundColor: 'rgba(0,0,0,0.5)', color: 'white' }}
+            className="absolute top-3 right-3 px-3 py-1.5 rounded-xl text-xs font-medium backdrop-blur-sm"
+            style={{ backgroundColor: 'rgba(0,0,0,0.55)', color: 'white' }}
           >
             Detener
           </button>
           {state === 'starting' && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-              <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+              <div className="w-7 h-7 border-2 border-white border-t-transparent rounded-full animate-spin" />
             </div>
           )}
         </div>
       )}
+      {/* Hidden canvas for frame decoding */}
+      <canvas ref={canvasRef} className="hidden" />
     </div>
   )
 }
