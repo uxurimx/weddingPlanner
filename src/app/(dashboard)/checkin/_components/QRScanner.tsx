@@ -13,7 +13,7 @@ function extractToken(raw: string): string | null {
 }
 
 function getErrorMessage(err: unknown): string {
-  if (!(err instanceof Error)) return 'No se pudo acceder a la cámara.'
+  if (!(err instanceof Error)) return `No se pudo acceder a la cámara. (${String(err)})`
   const name = err.name
   if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
     return 'Permiso de cámara denegado. Toca el ícono de cámara en la barra del navegador y permite el acceso.'
@@ -21,7 +21,13 @@ function getErrorMessage(err: unknown): string {
   if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
     return 'No se detectó cámara en este dispositivo.'
   }
-  return 'No se pudo acceder a la cámara.'
+  if (name === 'NotReadableError' || name === 'TrackStartError') {
+    return 'La cámara está siendo usada por otra app. Ciérrala e intenta de nuevo.'
+  }
+  if (name === 'OverconstrainedError') {
+    return 'La cámara trasera no está disponible. Intenta con otro dispositivo.'
+  }
+  return `Error de cámara: ${name} — ${err.message}`
 }
 
 export default function QRScanner({ onToken }: { onToken: (token: string) => void }) {
