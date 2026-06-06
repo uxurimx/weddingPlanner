@@ -1,25 +1,18 @@
 'use client'
 
-import { useState, useEffect, useTransition, useCallback, useRef } from 'react'
+import { useState, useEffect, useTransition, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, X, CheckCircle2, AlertCircle, Clock, MapPin, Users2 } from 'lucide-react'
+import { Search, X, CheckCircle2 } from 'lucide-react'
 import {
   checkInByToken,
-  getCheckInStats,
-  type CheckInResult,
   type CheckInStats,
   type CheckInRow,
 } from '@/db/actions/checkin'
 import QRScanner from './QRScanner'
+import ResultPanel, { type ResultState } from './ResultPanel'
 import PusherClient from 'pusher-js'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type ToastState =
-  | { type: 'success'; data: CheckInResult }
-  | { type: 'duplicate'; data: CheckInResult }
-  | { type: 'error'; message: string }
-  | null
+// ─── Status labels ────────────────────────────────────────────────────────────
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   created:   { label: 'Creado',     color: 'text-gray-500 bg-gray-500/10' },
@@ -28,59 +21,6 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   confirmed: { label: 'Confirmado', color: 'text-emerald-500 bg-emerald-500/10' },
   cancelled: { label: 'Cancelado',  color: 'text-red-500 bg-red-500/10' },
   present:   { label: 'Presente',   color: 'text-violet-500 bg-violet-500/10' },
-}
-
-// ─── Toast ────────────────────────────────────────────────────────────────────
-
-function Toast({ toast, onDismiss }: { toast: ToastState; onDismiss: () => void }) {
-  useEffect(() => {
-    if (!toast) return
-    const t = setTimeout(onDismiss, 5000)
-    return () => clearTimeout(t)
-  }, [toast, onDismiss])
-
-  if (!toast) return null
-
-  const isSuccess  = toast.type === 'success'
-  const isDuplicate = toast.type === 'duplicate'
-  const isError    = toast.type === 'error'
-
-  return (
-    <div
-      className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100vw-2rem)] max-w-sm rounded-2xl border shadow-2xl p-4 animate-fade-in"
-      style={{
-        backgroundColor: isSuccess ? 'rgba(16,185,129,0.1)' : isDuplicate ? 'rgba(234,179,8,0.1)' : 'rgba(239,68,68,0.1)',
-        borderColor: isSuccess ? 'rgba(16,185,129,0.3)' : isDuplicate ? 'rgba(234,179,8,0.3)' : 'rgba(239,68,68,0.3)',
-      }}
-    >
-      <div className="flex items-start gap-3">
-        <div className="flex-shrink-0 mt-0.5">
-          {isSuccess   && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
-          {isDuplicate && <Clock className="w-5 h-5 text-yellow-500" />}
-          {isError     && <AlertCircle className="w-5 h-5 text-red-500" />}
-        </div>
-        <div className="flex-1 min-w-0">
-          {(isSuccess || isDuplicate) && 'data' in toast && (
-            <>
-              <p className="text-sm font-bold" style={{ color: 'var(--fg)' }}>
-                {isDuplicate ? 'Ya registrado' : '¡Bienvenido!'} — {toast.data.familyName}
-              </p>
-              <p className="text-xs mt-0.5" style={{ color: 'var(--fg-muted)' }}>
-                {toast.data.totalPasses} pase{toast.data.totalPasses > 1 ? 's' : ''}
-                {toast.data.tableNumber && ` · Mesa ${toast.data.tableNumber}`}
-              </p>
-            </>
-          )}
-          {isError && (
-            <p className="text-sm font-medium text-red-500">{toast.message}</p>
-          )}
-        </div>
-        <button onClick={onDismiss} className="flex-shrink-0">
-          <X className="w-4 h-4" style={{ color: 'var(--fg-muted)' }} />
-        </button>
-      </div>
-    </div>
-  )
 }
 
 // ─── Stats Bar ────────────────────────────────────────────────────────────────
@@ -210,7 +150,7 @@ export default function CheckInDashboard({
   const router = useRouter()
   const [, startTransition] = useTransition()
   const [search, setSearch] = useState('')
-  const [toast, setToast] = useState<ToastState>(null)
+  const [result, setResult] = useState<ResultState>(null)
   const [tab, setTab] = useState<'scanner' | 'list'>('scanner')
 
   // ─── Pusher real-time ──────────────────────────────────────────────────────
@@ -223,7 +163,6 @@ export default function CheckInDashboard({
     const channel = pusher.subscribe('wedding-checkin')
 
     channel.bind('guest-arrived', () => {
-      // Refresh page data to get updated stats & list
       router.refresh()
     })
 
@@ -233,15 +172,15 @@ export default function CheckInDashboard({
   // ─── Check-in handler ─────────────────────────────────────────────────────
   const handleToken = useCallback((token: string) => {
     startTransition(async () => {
-      const result = await checkInByToken(token)
-      if (result.error) {
-        setToast({ type: 'error', message: result.error })
-      } else if (result.data) {
-        setToast({
-          type: result.data.alreadyPresent ? 'duplicate' : 'success',
-          data: result.data,
+      const res = await checkInByToken(token)
+      if (res.error) {
+        setResult({ type: 'error', message: res.error })
+      } else if (res.data) {
+        setResult({
+          type: res.data.alreadyPresent ? 'duplicate' : 'success',
+          data: res.data,
         })
-        if (!result.data.alreadyPresent) {
+        if (!res.data.alreadyPresent) {
           router.refresh()
         }
       }
@@ -269,7 +208,8 @@ export default function CheckInDashboard({
 
   return (
     <>
-      <Toast toast={toast} onDismiss={() => setToast(null)} />
+      {/* Full-screen result panel — manual dismiss only */}
+      <ResultPanel result={result} onDismiss={() => setResult(null)} />
 
       <div className="space-y-5">
         {/* Stats */}

@@ -29,6 +29,7 @@ export const ROUTE_ACCESS: Record<string, UserRole[]> = {
   '/social':       ['super_admin', 'admin', 'planner', 'viewer'],
   '/photographer': ['super_admin', 'admin'],
   '/checkin':      ['super_admin', 'admin', 'planner', 'receptionist'],
+  '/historial':    ['super_admin', 'admin', 'planner', 'receptionist'],
   '/users':        ['super_admin'],
   '/settings':     ['super_admin', 'admin'],
   '/debug':        ['super_admin', 'admin'],

@@ -19,6 +19,7 @@ import {
   ChevronRight,
   Menu,
   X,
+  ScrollText,
   type LucideIcon,
 } from 'lucide-react'
 import { UserButton, useUser } from '@clerk/nextjs'
@@ -68,8 +69,9 @@ const navSections: NavSection[] = [
   {
     label: 'Operación',
     items: [
-      { name: 'Check-in', href: '/checkin', icon: ScanLine   },
-      { name: 'Usuarios', href: '/users',   icon: ShieldCheck },
+      { name: 'Check-in',  href: '/checkin',   icon: ScanLine   },
+      { name: 'Historial', href: '/historial', icon: ScrollText },
+      { name: 'Usuarios',  href: '/users',     icon: ShieldCheck },
     ],
   },
   {

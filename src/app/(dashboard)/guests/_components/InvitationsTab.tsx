@@ -6,7 +6,7 @@ import {
   Plus, QrCode, Pencil, Trash2, MessageCircle, FileDown,
   Search, X, Users, FileUp, Send, Merge,
   ChevronDown, ChevronUp, Phone, Mail, MapPin, Clock, UserCheck,
-  Baby, UserRound,
+  Baby, UserRound, RotateCcw,
 } from 'lucide-react'
 import {
   deleteInvitation,
@@ -14,6 +14,7 @@ import {
   markInvitationSent,
   addGuestMember,
   removeGuestMember,
+  revertCancellation,
   type InvitationRow,
   type TableWithOccupancy,
 } from '@/db/actions/guests'
@@ -309,12 +310,14 @@ function InvitationDetailPanel({
   onEdit,
   onDelete,
   onQR,
+  onRevert,
 }: {
   invitation: InvitationRow
   tables: TableWithOccupancy[]
   onEdit: () => void
   onDelete: () => void
   onQR: () => void
+  onRevert: () => void
 }) {
   const sm = STATUS_META[invitation.status]
   const tableName = invitation.tableNumber
@@ -387,6 +390,17 @@ function InvitationDetailPanel({
         >
           <Trash2 className="w-3.5 h-3.5" /> Eliminar
         </button>
+
+        {invitation.status === 'cancelled' && (
+          <button
+            type="button"
+            onClick={onRevert}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-colors hover:border-emerald-500/30 hover:text-emerald-500"
+            style={{ borderColor: 'var(--border)', color: 'var(--fg-muted)' }}
+          >
+            <RotateCcw className="w-3.5 h-3.5" /> Reactivar
+          </button>
+        )}
       </div>
 
       {/* Body */}
@@ -866,6 +880,12 @@ export default function InvitationsTab({
                   onEdit={() => { setSelectedId(null); setEditing(inv.id) }}
                   onDelete={() => handleDelete(inv.id)}
                   onQR={() => setQrFor(inv)}
+                  onRevert={() => {
+                    startTransition(async () => {
+                      await revertCancellation(inv.id)
+                      router.refresh()
+                    })
+                  }}
                 />
               )}
             </div>

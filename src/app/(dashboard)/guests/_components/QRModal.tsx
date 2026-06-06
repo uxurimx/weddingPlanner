@@ -32,13 +32,112 @@ export default function QRModal({
     }).then(setQrDataUrl)
   }, [url])
 
+  // ─── Canvas download ──────────────────────────────────────────────────────
+
   function download() {
     if (!qrDataUrl) return
-    const link = document.createElement('a')
-    link.download = `qr-${invitation.familyName.replace(/\s+/g, '-').toLowerCase()}.png`
-    link.href = qrDataUrl
-    link.click()
+
+    const CARD_W = 600
+    const CARD_H = 800
+    const canvas  = document.createElement('canvas')
+    canvas.width  = CARD_W
+    canvas.height = CARD_H
+    const ctx = canvas.getContext('2d')!
+
+    // Background
+    ctx.fillStyle = '#FAFAF9'
+    ctx.fillRect(0, 0, CARD_W, CARD_H)
+
+    // Outer border
+    ctx.strokeStyle = '#DDD8D0'
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    const r = 24
+    ctx.moveTo(r, 0)
+    ctx.lineTo(CARD_W - r, 0)
+    ctx.quadraticCurveTo(CARD_W, 0, CARD_W, r)
+    ctx.lineTo(CARD_W, CARD_H - r)
+    ctx.quadraticCurveTo(CARD_W, CARD_H, CARD_W - r, CARD_H)
+    ctx.lineTo(r, CARD_H)
+    ctx.quadraticCurveTo(0, CARD_H, 0, CARD_H - r)
+    ctx.lineTo(0, r)
+    ctx.quadraticCurveTo(0, 0, r, 0)
+    ctx.closePath()
+    ctx.stroke()
+
+    // Couple names — script-style using italic serif
+    ctx.textAlign = 'center'
+    ctx.fillStyle = '#2A3A4A'
+    ctx.font = 'italic 52px Georgia, serif'
+    ctx.fillText('Jahir & Gilliane', CARD_W / 2, 100)
+
+    // Date
+    ctx.font = '600 22px -apple-system, system-ui, sans-serif'
+    ctx.fillStyle = '#6B6760'
+    ctx.fillText('06 · 06 · 2026', CARD_W / 2, 138)
+
+    // Separator line
+    ctx.strokeStyle = '#DDD8D0'
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.moveTo(80, 162)
+    ctx.lineTo(CARD_W - 80, 162)
+    ctx.stroke()
+
+    // QR image — async draw
+    const img = new Image()
+    img.onload = () => {
+      const QR_SIZE = 300
+      const qrX = (CARD_W - QR_SIZE) / 2
+      const qrY = 185
+
+      // QR background card
+      ctx.fillStyle = '#FFFFFF'
+      ctx.beginPath()
+      ctx.roundRect(qrX - 16, qrY - 16, QR_SIZE + 32, QR_SIZE + 32, 16)
+      ctx.fill()
+      ctx.strokeStyle = '#E8E4DE'
+      ctx.lineWidth = 1.5
+      ctx.stroke()
+
+      ctx.drawImage(img, qrX, qrY, QR_SIZE, QR_SIZE)
+
+      // Family name
+      ctx.textAlign = 'center'
+      ctx.fillStyle = '#2A3A4A'
+      ctx.font = 'bold 28px -apple-system, system-ui, sans-serif'
+      ctx.fillText(invitation.familyName, CARD_W / 2, qrY + QR_SIZE + 68)
+
+      // Invitation number
+      const numStr = `#${String(invitation.invitationNumber ?? 0).padStart(3, '0')}`
+      ctx.font = '500 16px -apple-system, system-ui, sans-serif'
+      ctx.fillStyle = '#9A948E'
+      ctx.fillText(numStr, CARD_W / 2, qrY + QR_SIZE + 98)
+
+      // Divider
+      ctx.strokeStyle = '#E8E4DE'
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      ctx.moveTo(CARD_W / 2 - 60, qrY + QR_SIZE + 116)
+      ctx.lineTo(CARD_W / 2 + 60, qrY + QR_SIZE + 116)
+      ctx.stroke()
+
+      // Contact name + passes info
+      ctx.font = '500 18px -apple-system, system-ui, sans-serif'
+      ctx.fillStyle = '#6B6760'
+      ctx.fillText(invitation.contactName, CARD_W / 2, qrY + QR_SIZE + 148)
+
+      // Download
+      const filename = `invitacion-${invitation.familyName.replace(/\s+/g, '-').toLowerCase()}.png`
+      const link = document.createElement('a')
+      link.download = filename
+      link.href = canvas.toDataURL('image/png')
+      link.click()
+    }
+    img.src = qrDataUrl
   }
+
+  // ─── Copy link ────────────────────────────────────────────────────────────
 
   function copyLink() {
     if (!url) return

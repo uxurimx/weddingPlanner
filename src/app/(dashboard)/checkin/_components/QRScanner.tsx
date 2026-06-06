@@ -12,13 +12,26 @@ function extractToken(raw: string): string | null {
   return m ? m[1] : null
 }
 
+function getErrorMessage(err: unknown): string {
+  if (!(err instanceof Error)) return 'No se pudo acceder a la cámara.'
+  const name = err.name
+  if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+    return 'Permiso de cámara denegado. Toca el ícono de cámara en la barra del navegador y permite el acceso.'
+  }
+  if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
+    return 'No se detectó cámara en este dispositivo.'
+  }
+  return 'No se pudo acceder a la cámara.'
+}
+
 export default function QRScanner({ onToken }: { onToken: (token: string) => void }) {
   const videoRef     = useRef<HTMLVideoElement>(null)
   const canvasRef    = useRef<HTMLCanvasElement>(null)
   const streamRef    = useRef<MediaStream | null>(null)
   const timerRef     = useRef<ReturnType<typeof setInterval> | null>(null)
   const lastTokenRef = useRef<string | null>(null)
-  const [state, setState] = useState<ScannerState>('idle')
+  const [state, setState]       = useState<ScannerState>('idle')
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   const stopScanner = useCallback(() => {
     if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null }
@@ -34,6 +47,21 @@ export default function QRScanner({ onToken }: { onToken: (token: string) => voi
     const video  = videoRef.current
     const canvas = canvasRef.current
     if (!video || !canvas) return
+
+    // Clear previous error
+    setErrorMsg(null)
+
+    // Check HTTPS before attempting getUserMedia
+    const isSecure =
+      window.location.protocol === 'https:' ||
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1'
+
+    if (!isSecure) {
+      setErrorMsg('El escáner requiere conexión segura (HTTPS).')
+      setState('error')
+      return
+    }
 
     setState('starting')
     try {
@@ -65,7 +93,8 @@ export default function QRScanner({ onToken }: { onToken: (token: string) => voi
           }
         }
       }, 250)
-    } catch {
+    } catch (err) {
+      setErrorMsg(getErrorMessage(err))
       setState('error')
     }
   }, [onToken, stopScanner])
@@ -81,15 +110,15 @@ export default function QRScanner({ onToken }: { onToken: (token: string) => voi
           <div className="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
             <Camera className="w-8 h-8 text-indigo-500" />
           </div>
-          <div className="text-center">
+          <div className="text-center px-4">
             <p className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>
               {state === 'error' ? 'Reintentar escáner' : 'Activar escáner QR'}
             </p>
             <p className="text-xs mt-1" style={{ color: 'var(--fg-muted)' }}>
               Funciona en Chrome, Safari y Firefox
             </p>
-            {state === 'error' && (
-              <p className="text-xs text-red-500 mt-1">No se pudo acceder a la cámara. Verifica los permisos.</p>
+            {state === 'error' && errorMsg && (
+              <p className="text-xs text-red-500 mt-2 leading-relaxed">{errorMsg}</p>
             )}
           </div>
         </button>

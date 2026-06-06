@@ -430,6 +430,35 @@ export async function bulkImportInvitations(
   }
 }
 
+// ─── Revert Cancellation ─────────────────────────────────────────────────────
+
+export async function revertCancellation(id: string): Promise<ActionState> {
+  try {
+    const [inv] = await db
+      .select({ status: invitations.status, sentAt: invitations.sentAt, eventId: invitations.eventId, familyName: invitations.familyName })
+      .from(invitations)
+      .where(eq(invitations.id, id))
+      .limit(1)
+
+    if (!inv) return { error: 'Invitación no encontrada.' }
+    if (inv.status !== 'cancelled') return { error: 'La invitación no está cancelada.' }
+
+    const newStatus: InvStatus = inv.sentAt ? 'sent' : 'created'
+
+    await db
+      .update(invitations)
+      .set({ status: newStatus, cancelledAt: null as unknown as Date, updatedAt: new Date() })
+      .where(eq(invitations.id, id))
+
+    revalidatePath('/guests')
+    revalidatePath('/overview')
+    return { success: true, message: `${inv.familyName} reactivada como "${newStatus === 'sent' ? 'Enviada' : 'Creada'}".` }
+  } catch (e) {
+    console.error(e)
+    return { error: 'Error al reactivar la invitación.' }
+  }
+}
+
 // ─── Merge (create family) ────────────────────────────────────────────────────
 
 export async function mergeInvitations(

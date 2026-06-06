@@ -55,7 +55,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
   return {
     totalInvitations:    invRows.length,
-    totalPasses:         invRows.reduce((s, r) => s + r.totalPasses, 0),
+    totalPasses:         invRows.filter(r => r.status !== 'cancelled').reduce((s, r) => s + r.totalPasses, 0),
     confirmed:           confirmed.length,
     confirmedPasses:     confirmed.reduce((s, r) => s + (r.confirmedCount ?? r.totalPasses), 0),
     cancelled:           invRows.filter(r => r.status === 'cancelled').length,
